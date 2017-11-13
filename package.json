@@ -1,0 +1,29 @@
+{
+	"private": true,
+	"name": "@anfema/grpc-typescript-generator",
+	"version": "0.1.0",
+	"description": "A Typescript definitions generator for gRPC",
+	"main": "dist/index.js",
+	"author": "André Wachter <a.wachter@anfe.ma>",
+	"scripts": {
+		"prepare": "yarn build",
+		"build": "tsc --project .",
+		"dev": "tsc --watch --project .",
+		"clean": "rimraf dist/*"
+	},
+	"bin": {
+		"grpc-generate-ts": "dist/main.js"
+	},
+	"devDependencies": {
+		"@types/node": "^8.0.50",
+		"@types/yargs": "^8.0.2",
+		"typescript": "^2.6.1"
+	},
+	"dependencies": {
+		"protobufjs": "~6.8.0",
+		"yargs": "^10.0.3"
+	},
+	"engines": {
+		"node": ">=8.0.0"
+	}
+}
