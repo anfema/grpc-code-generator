@@ -7,16 +7,14 @@ import messageBase from './message-base';
 import namespace from './namespace';
 
 
-export default function(root: Root): TemplateMap {
-	const templateMap = new Map<string, string>()
-		.set('grpc.d.ts', implementation(root))
-		.set('message-base.d.ts', messageBase());
+export default function(templateMap: TemplateMap, root: Root): void {
+	templateMap
+		.addTemplate('grpc.d.ts', implementation(root))
+		.addTemplate('message-base.d.ts', messageBase());
 
 	allNamespacesTransitiveOf(root).forEach(ns => {
-		templateMap.set(fileNameForNamespace(ns), namespace(ns, root))
+		templateMap.addTemplate(fileNameForNamespace(ns), namespace(ns, root))
 	});
-
-	return templateMap;
 }
 
 export function namespacedReferenceFor(type: ReflectionObject): string {

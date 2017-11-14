@@ -3,8 +3,7 @@
 import * as path from 'path';
 import * as process from 'process';
 import * as yargs from 'yargs';
-
-import { TemplateFunction, loadProto, writeFiles } from '.';
+import { TemplateMap, TemplateFunction, loadProto } from './';
 
 
 const args = yargs
@@ -26,6 +25,7 @@ const args = yargs
 (async function() {
 	try {
 		if (args._.length === 1) {
+			const templateMap = new TemplateMap();
 			const templatePath = path.join(__dirname, 'templates', args['t']);
 
 			try {
@@ -33,10 +33,10 @@ const args = yargs
 
 				const protoPath = path.join(process.cwd(), args._[0]);
 				const root = await loadProto(protoPath);
-				const fileMap = template(root);
 
-				await writeFiles(fileMap, path.join(process.cwd(), args['o']));
+				template(templateMap, root);
 
+				await templateMap.writeFiles(path.join(process.cwd(), args['o']));
 				process.exit(0);
 			}
 			catch (err) {

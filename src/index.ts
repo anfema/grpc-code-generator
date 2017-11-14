@@ -3,9 +3,45 @@ import * as path from 'path';
 import { promisify } from 'util';
 import { Root } from 'protobufjs';
 
+// export { TemplateMap };
+export type TemplateFunction = (templateMap: TemplateMap, root: Root) => void;
 
-export type TemplateMap = Map<string, string>;
-export type TemplateFunction = (root: Root) => TemplateMap;
+export class TemplateMap {
+	private _templates: Map<string, string> = new Map();
+
+	addTemplate(path: string, contents: string): this {
+		if (!this._templates.has(path)) {
+			this._templates.set(path, contents);
+			return this;
+		}
+		else {
+			throw new Error(`file '${path}' already generated`);
+		}
+	}
+
+	async writeFiles(basePath: string): Promise<any> {
+		const subDirs = uniq([
+			...directoryHierarchy(basePath),
+			...Array.from(this._templates.keys()).map(file =>
+				path.join(basePath, path.dirname(file))
+			)
+		]).sort();
+
+		for (let i = 0; i < subDirs.length; i++) {
+			const dir = subDirs[i];
+			try {
+				await access(dir);
+			}
+			catch {
+				await mkdir(dir);
+			}
+		};
+
+		return Promise.all(Array.from(this._templates.entries()).map(async ([filename, content]) =>
+			writeFile(path.join(basePath, filename), content)
+		));
+	}
+}
 
 const writeFile = promisify(fs.writeFile);
 const mkdir = promisify(fs.mkdir);
@@ -14,34 +50,9 @@ const access = promisify(fs.access);
 export async function loadProto(protoPath: string): Promise<Root> {
 	const root = new Root();
 
-	await root.load(protoPath, {
+	return root.load(protoPath, {
 		keepCase: true
 	})
-
-	return root;
-}
-
-export async function writeFiles(templateMap: TemplateMap, basePath: string): Promise<any> {
-	const subDirs = uniq([
-		...directoryHierarchy(basePath),
-		...Array.from(templateMap.keys()).map(file =>
-			path.join(basePath, path.dirname(file))
-		)
-	]).sort();
-
-	for (let i = 0; i < subDirs.length; i++) {
-		const dir = subDirs[i];
-		try {
-			await access(dir);
-		}
-		catch {
-			await mkdir(dir);
-		}
-	};
-
-	await Promise.all(Array.from(templateMap.entries()).map(async ([filename, content]) =>
-		writeFile(path.join(basePath, filename), content)
-	));
 }
 
 function uniq<T>(array: T[]): T[] {
