@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as process from 'process';
 import * as yargs from 'yargs';
 
-import template from './templates/grpc';
+import template from './templates/grpc-typed';
 import { loadProto, writeFiles } from '.';
 
 
