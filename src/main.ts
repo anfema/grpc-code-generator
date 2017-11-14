@@ -9,6 +9,7 @@ import { loadProto, writeFiles } from '.';
 
 
 const args = yargs
+	.usage('grpc-code-generator [options] <path/to/main.proto>')
 	.option('out', {
 		alias: 'o',
 		default: 'src-gen',
