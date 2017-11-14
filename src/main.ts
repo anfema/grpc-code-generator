@@ -4,8 +4,7 @@ import * as path from 'path';
 import * as process from 'process';
 import * as yargs from 'yargs';
 
-import template from './templates/grpc-typed';
-import { loadProto, writeFiles } from '.';
+import { TemplateFunction, loadProto, writeFiles } from '.';
 
 
 const args = yargs
@@ -15,6 +14,11 @@ const args = yargs
 		default: 'src-gen',
 		desc: 'output directory of generated files'
 	})
+	.option('template', {
+		alias: 't',
+		default: 'grpc-typed',
+		desc: 'template for code generation'
+	})
 	.help()
 	.version()
 	.argv;
@@ -22,16 +26,31 @@ const args = yargs
 (async function() {
 	try {
 		if (args._.length === 1) {
-			const protoPath = path.join(process.cwd(), args._[0]);
-			const root = await loadProto(protoPath);
-			const fileMap = template(root);
+			const templatePath = path.join(__dirname, 'templates', args['t']);
 
-			await writeFiles(fileMap, path.join(process.cwd(), args['o']));
+			try {
+				const template = require(templatePath).default as TemplateFunction;
 
-			process.exit(0);
+				const protoPath = path.join(process.cwd(), args._[0]);
+				const root = await loadProto(protoPath);
+				const fileMap = template(root);
+
+				await writeFiles(fileMap, path.join(process.cwd(), args['o']));
+
+				process.exit(0);
+			}
+			catch (err) {
+				if (err.code === 'MODULE_NOT_FOUND') {
+					console.log(`Error: Template module '${templatePath}' not found.`)
+					process.exit(1);
+				}
+				else {
+					throw err;
+				}
+			}
 		}
 		else {
-
+			// TODO print an error message
 		}
 	}
 	catch (err) {
