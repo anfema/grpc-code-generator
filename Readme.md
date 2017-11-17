@@ -5,7 +5,7 @@ A code generator for gRPC `proto` files. Currently contains templates for genera
 
 Prerequisites
 ---
-The grpc-node version from [here](https://github.com/grpc/grpc-node/pull/84).
+The grpc-node version from [here](https://github.com/andrew8er/grpc-node/tree/feature/generic-ts-definitions).
 
 Usage
 ---

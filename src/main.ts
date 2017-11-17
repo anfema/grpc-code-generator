@@ -15,7 +15,7 @@ const args = yargs
 	})
 	.option('template', {
 		alias: 't',
-		default: 'grpc-typed',
+		default: 'grpc-node-typed',
 		desc: 'template for code generation'
 	})
 	.help()
