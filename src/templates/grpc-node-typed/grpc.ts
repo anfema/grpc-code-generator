@@ -5,39 +5,26 @@ import {
 	allNamespacesTransitiveOf,
 	allServicesOf,
 	allTypesOf,
-	importDeclaration
+	namespacedReferenceForType,
+	namespacedReferenceForService,
+	allRecursiveServicesOf,
+	allNamespaceImportDeclarations,
+	importReferenceFor, importFileFor
 } from '../utils';
-import { namespacedReferenceFor } from './';
 
 
 export default function (root: Root): string {
-	const imports = allNamespacesTransitiveOf(root)
-		.map(ns => importDeclaration(ns, root));
-
 	return (
 `import { Message } from 'protobufjs';
 import { MessageBase } from './message-base';
-${imports.join("\n")}
+${allNamespaceImportDeclarations(root, root).join("\n")}
+${allServiceImportDeclarations(root, root).join("\n")}
+
 
 export default interface Grpc {
 	${indent(namespaceDeclarations(root), 1)}
 }
 `);
-}
-
-function subNamespaceDeclaration(ns: Namespace, indentLevel: number): string {
-	return (
-`${ns.name}: {
-	${indent(namespaceDeclarations(ns as NamespaceBase, indentLevel), indentLevel + 1)}
-}`);
-}
-
-function typeDeclaration(type: Type): string {
-	return `${type.name}: MessageBase<${namespacedReferenceFor(type)}>;`;
-}
-
-function serviceDeclaration(service: Service): string {
-	return `${service.name}: typeof ${namespacedReferenceFor(service)}.Client;`
 }
 
 function namespaceDeclarations(namespace: NamespaceBase, indentLevel: number = 0): string {
@@ -49,10 +36,30 @@ function namespaceDeclarations(namespace: NamespaceBase, indentLevel: number = 0
 
 	return indent(
 `// message types
-${messageTypes.join("\n\n")}
+${messageTypes.join("\n")}
 
 // services
-${serviceTypes.join("\n\n")}
-${subNamespaces.join("\n\n")}
-`, indentLevel);
+${serviceTypes.join("\n")}
+
+${subNamespaces.join("\n\n")}`, indentLevel);
+}
+
+function subNamespaceDeclaration(ns: Namespace, indentLevel: number): string {
+	return (
+`${ns.name}: {
+	${indent(namespaceDeclarations(ns as NamespaceBase, indentLevel), indentLevel + 1)}
+}`);
+}
+
+function typeDeclaration(type: Type): string {
+	return `${type.name}: MessageBase<${namespacedReferenceForType(type)}>;`;
+}
+
+function serviceDeclaration(service: Service): string {
+	return `${service.name}: typeof ${namespacedReferenceForService(service)}.Client;`
+}
+
+function allServiceImportDeclarations(root: Root, baseNs: Namespace): string[] {
+	return allRecursiveServicesOf(root)
+		.map(ns => `import * as ${importReferenceFor(ns)} from '${importFileFor(ns, baseNs)}/grpc-node';`);
 }

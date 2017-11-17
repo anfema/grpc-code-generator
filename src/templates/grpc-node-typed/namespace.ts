@@ -1,17 +1,15 @@
 import { Root, Namespace, Type, Service, Field, Method } from 'protobufjs'
-import { allNamespacesTransitiveOf, allServicesOf, allTypesOf, indent, importDeclaration } from '../utils';
-import { namespacedReferenceFor } from './';
+import {
+	allNamespacesTransitiveOf, allServicesOf, allTypesOf, indent, allNamespaceImportDeclarations,
+	namespacedReferenceForType
+} from '../utils';
+import {  } from './';
 
 
-export default function (namespace: Namespace, root: Root): string {
-	const imports = allNamespacesTransitiveOf(root)
-		.map(ns => importDeclaration(ns, namespace));
-
+export default function(namespace: Namespace, root: Root): string {
 	const messageTypes = allTypesOf(namespace)
 		.map(ns => typeDeclaration(ns));
 
-	const serviceTypes = allServicesOf(namespace)
-		.map(ns => serviceDeclaration(ns));
 
 	return (
 `import { Message, Long } from 'protobufjs';
@@ -22,12 +20,10 @@ import {
 	ClientReadableStream, ClientWritableStream, ClientDuplexStream,
 	sendUnaryData,
 } from 'grpc';
-${imports.join("\n")}
+${allNamespaceImportDeclarations(root, namespace).join("\n")}
 
 
-${messageTypes.join("\n\n")}
-
-${serviceTypes.join("\n\n")}`);
+${messageTypes.join("\n\n")}`);
 }
 
 function typeDeclaration(type: Type): string {
@@ -40,83 +36,10 @@ function typeDeclaration(type: Type): string {
 }`);
 }
 
-function serviceDeclaration(service: Service): string {
-	return (
-`export namespace ${service.name} {
-	${indent(serviceServerDeclaration(service), 1)}
-
-	${indent(serviceClientDeclaration(service), 1)}
-}`);
-}
-
-function serviceServerDeclaration(service: Service): string {
-	const methods = service.methodsArray.map(method => serverMethodDeclaration(method as Method));
-
-	return (
-`export interface Service {
-	${indent(methods.join("\n"), 1)}
-}`);
-}
-
-function serviceClientDeclaration(service: Service): string {
-	const methods = service.methodsArray.map(method => clientMethodDeclaration(method as Method));
-
-	return (
-`export class Client extends GrpcClient {
-	static service: ServiceDefinition<Service>;
-
-	${indent(methods.join("\n"), 1)}
-}`);
-}
-
 function fieldDeclaration(field: Field): string {
 	return (
 `/** ${field.comment} */
 ${field.name}: ${typeForField(field)};`);
-}
-
-function serverMethodDeclaration(method: Method): string {
-	method.resolve();
-
-	if (method.resolved) {
-		if (method.responseStream && method.requestStream) {
-			return `${method.name}(call: ServerDuplexStream<${method.requestType}, ${method.responseType}>): void;`
-		}
-		else if (method.responseStream) {
-			return `${method.name}(call: ServerWriteableStream<${method.requestType}>): void;`
-		}
-		else if (method.requestStream) {
-			return `${method.name}(call: ServerReadableStream<${method.requestType}>, callback: sendUnaryData<${method.responseType}>): void;`
-		}
-		else {
-			return `${method.name}(call: ServerUnaryCall<${method.requestType}>, callback: sendUnaryData<${method.responseType}>): void;`
-		}
-	}
-	else {
-		throw new Error(`could not resolve type for field '${method.fullName}'`);
-	}
-}
-
-function clientMethodDeclaration(method: Method): string {
-	method.resolve();
-
-	if (method.resolved) {
-		if (method.responseStream && method.requestStream) {
-			return `${method.name}(): ClientDuplexStream<${method.requestType}, ${method.responseType}>;`
-		}
-		else if (method.responseStream) {
-			return `${method.name}(arg: ${method.requestType}): ClientReadableStream<${method.responseStream}>;`
-		}
-		else if (method.requestStream) {
-			return `${method.name}(callback: sendUnaryData<${method.responseType}>): ClientWritableStream<${method.requestType}>;`
-		}
-		else {
-			return `${method.name}(arg: ${method.requestType}, callback: sendUnaryData<${method.responseType}>): void;`
-		}
-	}
-	else {
-		throw new Error(`could not resolve type for field '${method.fullName}'`);
-	}
 }
 
 function typeForField(field: Field): string {

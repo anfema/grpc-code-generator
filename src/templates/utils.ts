@@ -2,6 +2,14 @@ import * as path from 'path';
 import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 'protobufjs';
 
 
+export function directoryForService(service: Service): string {
+	const parents = parentChainOf(service)
+		.slice(1) // omit the root namespace
+		.map(p => p.name);
+
+	return path.join(...parents);
+}
+
 export function fileNameForNamespace(namespace: Namespace): string {
 	const parents = [...parentChainOf(namespace), namespace]
 		.slice(1) // omit the root namespace
@@ -43,6 +51,26 @@ export function allNamespacesTransitiveOf(namespace: Namespace): Namespace[] {
 	return Array.from(done);
 }
 
+export function allRecursiveServicesOf(namespace: Root): Service[] {
+	const done = new Set<Namespace>();
+	const todo = new Set<Namespace>([namespace]);
+	const services = new Array<Service>();
+
+	while (todo.size > 0) {
+		todo.forEach(ns => {
+			todo.delete(ns);
+
+			if (!done.has(ns)) {
+				done.add(ns);
+				allSubNamespacesOf(ns).forEach(ns => todo.add(ns));
+				services.push(...allServicesOf(ns));
+			}
+		});
+	}
+
+	return services;
+}
+
 export function allSubNamespacesOf(namespace: Namespace): Namespace[] {
 	return namespace.nestedArray.filter(ns =>
 		ns instanceof Namespace && ns.constructor.name === 'Namespace'
@@ -72,15 +100,16 @@ export function parentChainOf(obj: ReflectionObject): ReflectionObject[] {
 	return parents;
 }
 
-export function importDeclaration(ns: Namespace, baseNs: Namespace): string {
-	return `import * as ${importReferenceFor(ns)} from '${importFileFor(ns, baseNs)}';`;
+export function allNamespaceImportDeclarations(root: Root, baseNs: Namespace): string[] {
+	return allNamespacesTransitiveOf(root)
+		.map(ns => `import * as ${importReferenceFor(ns)} from '${importFileFor(ns, baseNs)}';`);
 }
 
 /**
  * The reference part of an import declaration (import * as <ref> from './file').
  */
-function importReferenceFor(namespace: NamespaceBase): string {
-	const parents = [...parentChainOf(namespace), namespace]
+export function importReferenceFor(obj: NamespaceBase): string {
+	const parents = [...parentChainOf(obj), obj]
 		.slice(1) // omit the root namespace
 		.map(p => p.name);
 
@@ -90,7 +119,7 @@ function importReferenceFor(namespace: NamespaceBase): string {
 /**
  * The _from_ part of an import declaration, a relative path from {@arg base}.
  */
-function importFileFor(target: Namespace, base: Namespace): string {
+export function importFileFor(target: Namespace, base: Namespace): string {
 	const targetTrail = [...parentChainOf(target), target];
 	const baseTrail = [...parentChainOf(base), base];
 
@@ -108,4 +137,12 @@ function importFileFor(target: Namespace, base: Namespace): string {
 	}
 
 	return [...ascends, ...descends].join('/');
+}
+
+export function namespacedReferenceForType(type: Type): string {
+	return `${importReferenceFor(type.parent as NamespaceBase)}.${type.name}`;
+}
+
+export function namespacedReferenceForService(service: Service): string {
+	return importReferenceFor(service);
 }
