@@ -1,6 +1,6 @@
 import { Root, Namespace, Type, Service, Field, Method } from 'protobufjs'
-import { allNamespacesTransitiveOf, allServicesOf, allTypesOf, indent } from '../utils';
-import { namespacedReferenceFor, importDeclaration } from './';
+import { allNamespacesTransitiveOf, allServicesOf, allTypesOf, indent, importDeclaration } from '../utils';
+import { namespacedReferenceFor } from './';
 
 
 export default function (namespace: Namespace, root: Root): string {

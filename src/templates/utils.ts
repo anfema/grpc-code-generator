@@ -71,3 +71,41 @@ export function parentChainOf(obj: ReflectionObject): ReflectionObject[] {
 
 	return parents;
 }
+
+export function importDeclaration(ns: Namespace, baseNs: Namespace): string {
+	return `import * as ${importReferenceFor(ns)} from '${importFileFor(ns, baseNs)}';`;
+}
+
+/**
+ * The reference part of an import declaration (import * as <ref> from './file').
+ */
+function importReferenceFor(namespace: NamespaceBase): string {
+	const parents = [...parentChainOf(namespace), namespace]
+		.slice(1) // omit the root namespace
+		.map(p => p.name);
+
+	return `$${parents.join('$')}`;
+}
+
+/**
+ * The _from_ part of an import declaration, a relative path from {@arg base}.
+ */
+function importFileFor(target: Namespace, base: Namespace): string {
+	const targetTrail = [...parentChainOf(target), target];
+	const baseTrail = [...parentChainOf(base), base];
+
+	// find last common base of both trails;
+	let i = 0;
+	while (i < targetTrail.length && i < baseTrail.length && targetTrail[i] === baseTrail[i]) {
+		i++;
+	}
+
+	const ascends = new Array(baseTrail.length - i).fill('..');
+	const descends = targetTrail.slice(i).map(ns => ns.name);
+
+	if (ascends.length === 0) {
+		descends.unshift('.');
+	}
+
+	return [...ascends, ...descends].join('/');
+}

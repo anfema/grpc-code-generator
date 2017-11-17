@@ -5,8 +5,9 @@ import {
 	allNamespacesTransitiveOf,
 	allServicesOf,
 	allTypesOf,
+	importDeclaration
 } from '../utils';
-import { namespacedReferenceFor, importDeclaration } from './';
+import { namespacedReferenceFor } from './';
 
 
 export default function (root: Root): string {
