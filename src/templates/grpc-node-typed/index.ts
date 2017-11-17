@@ -2,14 +2,14 @@ import * as path from 'path';
 import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 'protobufjs'
 import { parentChainOf, allNamespacesTransitiveOf, fileNameForNamespace } from '../utils';
 import { TemplateFunction, TemplateMap } from '../..';
-import implementation from './implementation';
+import grpc from './grpc';
 import messageBase from './message-base';
 import namespace from './namespace';
 
 
 export default function(templateMap: TemplateMap, root: Root): void {
 	templateMap
-		.addTemplate('grpc.d.ts', implementation(root))
+		.addTemplate('grpc.d.ts', grpc(root))
 		.addTemplate('message-base.d.ts', messageBase());
 
 	allNamespacesTransitiveOf(root).forEach(ns => {
