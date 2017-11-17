@@ -1,5 +1,14 @@
+import * as path from 'path';
 import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 'protobufjs';
 
+
+export function fileNameForNamespace(namespace: Namespace): string {
+	const parents = [...parentChainOf(namespace), namespace]
+		.slice(1) // omit the root namespace
+		.map(p => p.name);
+
+	return path.join(...parents, 'index.d.ts');
+}
 
 export function indent(value: string, level: number, indenter: string = "\t"): string {
 	const indent = "\n" + indenter.repeat(level);

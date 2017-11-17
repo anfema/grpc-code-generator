@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 'protobufjs'
-import { parentChainOf, allNamespacesTransitiveOf } from '../utils';
+import { parentChainOf, allNamespacesTransitiveOf, fileNameForNamespace } from '../utils';
 import { TemplateFunction, TemplateMap } from '../..';
 import implementation from './implementation';
 import messageBase from './message-base';
