@@ -8,10 +8,10 @@ export default function (namespace: Namespace, root: Root): string {
 		.map(ns => importDeclaration(ns, namespace));
 
 	const messageTypes = allTypesOf(namespace)
-		.map(ns => typeDefinition(ns));
+		.map(ns => typeDeclaration(ns));
 
 	const serviceTypes = allServicesOf(namespace)
-		.map(ns => serviceDefinition(ns));
+		.map(ns => serviceDeclaration(ns));
 
 	return (
 `import { Message, Long } from 'protobufjs';
@@ -30,9 +30,9 @@ ${messageTypes.join("\n\n")}
 ${serviceTypes.join("\n\n")}`);
 }
 
-function typeDefinition(type: Type): string {
+function typeDeclaration(type: Type): string {
 	const fields = type.fieldsArray
-		.map(field => fieldDefinition(field));
+		.map(field => fieldDeclaration(field));
 
 	return (
 `export interface ${type.name} {
@@ -40,17 +40,17 @@ function typeDefinition(type: Type): string {
 }`);
 }
 
-function serviceDefinition(service: Service): string {
+function serviceDeclaration(service: Service): string {
 	return (
 `export namespace ${service.name} {
-	${indent(serviceServerDefinition(service), 1)}
+	${indent(serviceServerDeclaration(service), 1)}
 
-	${indent(serviceClientDefinition(service), 1)}
+	${indent(serviceClientDeclaration(service), 1)}
 }`);
 }
 
-function serviceServerDefinition(service: Service): string {
-	const methods = service.methodsArray.map(method => serverMethodDefinition(method as Method));
+function serviceServerDeclaration(service: Service): string {
+	const methods = service.methodsArray.map(method => serverMethodDeclaration(method as Method));
 
 	return (
 `export interface Service {
@@ -58,8 +58,8 @@ function serviceServerDefinition(service: Service): string {
 }`);
 }
 
-function serviceClientDefinition(service: Service): string {
-	const methods = service.methodsArray.map(method => clientMethodDefinition(method as Method));
+function serviceClientDeclaration(service: Service): string {
+	const methods = service.methodsArray.map(method => clientMethodDeclaration(method as Method));
 
 	return (
 `export class Client extends GrpcClient {
@@ -69,13 +69,13 @@ function serviceClientDefinition(service: Service): string {
 }`);
 }
 
-function fieldDefinition(field: Field): string {
+function fieldDeclaration(field: Field): string {
 	return (
 `/** ${field.comment} */
 ${field.name}: ${typeForField(field)};`);
 }
 
-function serverMethodDefinition(method: Method): string {
+function serverMethodDeclaration(method: Method): string {
 	method.resolve();
 
 	if (method.resolved) {
@@ -97,7 +97,7 @@ function serverMethodDefinition(method: Method): string {
 	}
 }
 
-function clientMethodDefinition(method: Method): string {
+function clientMethodDeclaration(method: Method): string {
 	method.resolve();
 
 	if (method.resolved) {

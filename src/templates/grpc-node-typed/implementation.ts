@@ -5,7 +5,6 @@ import {
 	allNamespacesTransitiveOf,
 	allServicesOf,
 	allTypesOf,
-	parentChainOf
 } from '../utils';
 import { namespacedReferenceFor, importDeclaration } from './';
 
@@ -20,7 +19,7 @@ import { MessageBase } from './message-base';
 ${imports.join("\n")}
 
 export default interface Grpc {
-	${indent(namespaceDefinitions(root), 1)}
+	${indent(namespaceDeclarations(root), 1)}
 }
 `);
 }
@@ -28,7 +27,7 @@ export default interface Grpc {
 function subNamespaceDeclaration(ns: Namespace, indentLevel: number): string {
 	return (
 `${ns.name}: {
-	${indent(namespaceDefinitions(ns as NamespaceBase, indentLevel), indentLevel + 1)}
+	${indent(namespaceDeclarations(ns as NamespaceBase, indentLevel), indentLevel + 1)}
 }`);
 }
 
@@ -40,7 +39,7 @@ function serviceDeclaration(service: Service): string {
 	return `${service.name}: typeof ${namespacedReferenceFor(service)}.Client;`
 }
 
-function namespaceDefinitions(namespace: NamespaceBase, indentLevel: number = 0): string {
+function namespaceDeclarations(namespace: NamespaceBase, indentLevel: number = 0): string {
 	const messageTypes = allTypesOf(namespace).map(ns => typeDeclaration(ns));
 	const serviceTypes = allServicesOf(namespace).map(ns => serviceDeclaration(ns));
 	const subNamespaces = allSubNamespacesOf(namespace).map(ns =>

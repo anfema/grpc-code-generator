@@ -26,14 +26,6 @@ export function namespacedReferenceFor(type: ReflectionObject): string {
 	return `$${parents.join('$')}.${type.name}`;
 }
 
-export function fileNameForNamespace(namespace: Namespace): string {
-	const parents = [...parentChainOf(namespace), namespace]
-		.slice(1) // omit the root namespace
-		.map(p => p.name);
-
-	return path.join(...parents, 'index.d.ts');
-}
-
 /**
  * The reference part of an import declaration (import * as <ref> from './file').
  */
