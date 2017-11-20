@@ -1,33 +1,25 @@
 import * as path from 'path';
-import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 'protobufjs'
-import { parentChainOf, allNamespacesTransitiveOf } from '../utils';
+import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 'protobufjs';
+import grpcNodeTypedTemplate from '../grpc-node-typed';
+import { parentChainOf, allNamespacesTransitiveOf, allRecursiveServicesOf } from '../utils';
 import { TemplateFunction, TemplateMap } from '../..';
-// import implementation from './implementation';
-// import messageBase from './message-base';
-// import namespace from './namespace';
+import { serviceInterface } from './service';
 
 
-// export default function (templateMap: TemplateMap, root: Root): void {
-// 	templateMap
-// 		.addTemplate('grpc.d.ts', implementation(root))
-// 		.addTemplate('message-base.d.ts', messageBase());
+export default function(templateMap: TemplateMap, root: Root): void {
+	// generate base grpc-node templates too
+	grpcNodeTypedTemplate(templateMap, root);
 
-// 	allNamespacesTransitiveOf(root).forEach(ns => {
-// 		templateMap.addTemplate(fileNameForNamespace(ns), namespace(ns, root))
-// 	});
-// }
+	allRecursiveServicesOf(root).forEach(service => {
+		templateMap.addTemplate(fileNameForService(service), serviceInterface(service, root))
+	});
+}
 
+function fileNameForService(service: Service): string {
+	const parents = [...parentChainOf(service), service]
+		.slice(1) // omit the root namespace
+		.map(p => p.name);
 
-// interface NewServerApi {
-// 	getFeature(request: Point): Promise<Feature>;
-// 	listFeatures(request: Rectangle): Promsie<Observable<Feature>>;
-// 	recordRoute(requestStream: Observable<Point>): Promise<RouteSummary>;
-// 	routeChat(requestStream: Observable<RouteNote>): Promise<Observable<RouteNote>>;
-// }
+	return path.join(...parents, 'grpc-node-rxjs.d.ts');
+}
 
-// interface NewClientApi {
-// 	getFeature(request: Point): ObservableClientCall<Feature>;
-// 	listFeatures(request: Rectangle): ObservableClientCall<Feature>;
-// 	recordRoute(requestStream: Observable<Point>): ObservableClientCall<RouteSummary>;
-// 	routeChat(requestStream: Observable<RouteNote>): ObservableClientCall<RouteNote>;
-// }
