@@ -22,9 +22,9 @@ export class TemplateMap {
 	async writeFiles(basePath: string): Promise<any> {
 		const subDirs = uniq([
 			...directoryHierarchy(basePath),
-			...Array.from(this._templates.keys()).map(file =>
-				path.join(basePath, path.dirname(file))
-			)
+			...Array.from(this._templates.keys()).map(file => directoryHierarchy(path.dirname(file)))
+				.reduce((acc, current) => acc.concat(current), [])
+				.map(dir => path.join(basePath, dir))
 		]).sort();
 
 		for (let i = 0; i < subDirs.length; i++) {
