@@ -22,7 +22,7 @@ export default function(templateMap: TemplateMap, root: Root): void {
 	});
 }
 
-export function fileNameForService(service: Service): string {
+function fileNameForService(service: Service): string {
 	const parents = [...parentChainOf(service), service]
 		.slice(1) // omit the root namespace
 		.map(p => p.name);
