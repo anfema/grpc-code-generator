@@ -10,6 +10,7 @@ export function serviceInterface(service: Service, root: Root): string {
 `import { Message, Long } from 'protobufjs';
 import { Observable } from 'rxjs';
 import { ObservableClientCall } from '@anfema/grpc-node-rxjs/src/client';
+import { Call } from '@anfema/grpc-node-rxjs/src/server';
 ${allNamespaceImportDeclarations(root, service).join("\n")}
 
 
@@ -44,16 +45,16 @@ function serverMethodDeclaration(method: Method): string {
 		const responseType = namespacedReferenceForType(method.resolvedResponseType);
 
 		if (method.responseStream && method.requestStream) {
-			return `${method.name}(requestStream: Observable<${requestType}>): Promise<Observable<${responseType}>>;`
+			return `${method.name}(requestStream: Observable<${requestType}>, call?: Call): Promise<Observable<${responseType}>>;`
 		}
 		else if (method.responseStream) {
-			return `${method.name}(request: ${requestType}): Promise<Observable<${responseType}>>;`
+			return `${method.name}(request: ${requestType}, call?: Call): Promise<Observable<${responseType}>>;`
 		}
 		else if (method.requestStream) {
-			return `${method.name}(requestStream: Observable<${requestType}>): Promise<${responseType}>;`
+			return `${method.name}(requestStream: Observable<${requestType}>, call?: Call): Promise<${responseType}>;`
 		}
 		else {
-			return `${method.name}(request: ${requestType}): Promise<${responseType}>`
+			return `${method.name}(request: ${requestType}, call?: Call): Promise<${responseType}>`
 		}
 	}
 	else {
