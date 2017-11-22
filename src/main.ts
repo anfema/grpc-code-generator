@@ -26,7 +26,7 @@ const args = yargs
 	try {
 		if (args._.length === 1) {
 			const templateMap = new TemplateMap();
-			const templatePath = path.join(__dirname, 'templates', args['t']);
+			const templatePath = path.join(process.cwd(), args['t']);
 
 			try {
 				const template = require(templatePath).default as TemplateFunction;
