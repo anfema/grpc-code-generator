@@ -26,9 +26,13 @@ const args = yargs
 	try {
 		if (args._.length === 1) {
 			const templateMap = new TemplateMap();
-			const templatePath = path.join(process.cwd(), args['t']);
 
-			try {
+			// @ts-ignore
+			const templatePath =
+				tryResolveModule(path.join(process.cwd(), args['t'])) ||
+				tryResolveModule(path.join(__dirname, '..', 'main', 'templates', args['t']));
+
+			if (templatePath) {
 				const template = require(templatePath).default as TemplateFunction;
 
 				const protoPath = path.join(process.cwd(), args._[0]);
@@ -39,14 +43,8 @@ const args = yargs
 				await templateMap.writeFiles(path.join(process.cwd(), args['o']));
 				process.exit(0);
 			}
-			catch (err) {
-				if (err.code === 'MODULE_NOT_FOUND') {
-					console.log(`Error: Template module '${templatePath}' not found.`)
-					process.exit(1);
-				}
-				else {
-					throw err;
-				}
+			else {
+				console.log(`Error: Template module '${args['t']}' not found.`)
 			}
 		}
 		else {
@@ -59,5 +57,17 @@ const args = yargs
 	}
 })()
 
-
+function tryResolveModule(path: string): string | undefined {
+	try {
+		return require.resolve(path);
+	}
+	catch (error) {
+		if (error.code === 'MODULE_NOT_FOUND') {
+			return;
+		}
+		else {
+			throw error;
+		}
+	}
+}
 
