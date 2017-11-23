@@ -6,17 +6,20 @@
 	"main": "dist/index.js",
 	"author": "André Wachter <a.wachter@anfe.ma>",
 	"scripts": {
-		"prepare": "yarn build",
-		"build": "tsc --project .",
-		"dev": "tsc --watch --project .",
-		"clean": "rimraf dist/*"
+		"prepare": "npm run build",
+		"build": "npm run main.build",
+		"dev": "npm run main.dev",
+		"clean": "rimraf dist/*",
+		"main.build": "tsc --project src/main",
+		"main.dev": "tsc --watch --project src/main"
 	},
 	"bin": {
-		"grpc-code-generator": "dist/main.js"
+		"grpc-code-generator": "dist/main/main.js"
 	},
 	"devDependencies": {
 		"@types/node": "^8.0.50",
 		"@types/yargs": "^8.0.2",
+		"rimraf": "^2.6.2",
 		"typescript": "^2.6.1"
 	},
 	"dependencies": {
