@@ -1,32 +1,7 @@
 {
 	"private": true,
-	"name": "@anfema/grpc-code-generator",
-	"version": "0.1.0",
-	"description": "A code generator for gRPC",
-	"main": "dist/index.js",
-	"author": "André Wachter <a.wachter@anfe.ma>",
-	"scripts": {
-		"prepare": "npm run build",
-		"build": "npm run main.build",
-		"dev": "npm run main.dev",
-		"clean": "rimraf dist/*",
-		"main.build": "tsc --project src/main",
-		"main.dev": "tsc --watch --project src/main"
-	},
-	"bin": {
-		"grpc-code-generator": "dist/main/main.js"
-	},
-	"devDependencies": {
-		"@types/node": "^8.0.50",
-		"@types/yargs": "^8.0.2",
-		"rimraf": "^2.6.2",
-		"typescript": "^2.6.1"
-	},
-	"dependencies": {
-		"protobufjs": "~6.8.0",
-		"yargs": "^10.0.3"
-	},
-	"engines": {
-		"node": ">=8.0.0"
-	}
+	"workspaces": [
+		"main",
+		"dependencies/grpc-node/packages/grpc-native-core"
+	]
 }
