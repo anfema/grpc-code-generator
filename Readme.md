@@ -3,9 +3,14 @@ grpc-code-generator
 
 A code generator for gRPC `proto` files. Currently contains templates for generating Typescript definitions for the plain callback/streams based API for [grpc-node](https://github.com/grpc/grpc-node).
 
-Prerequisites
+
+Directory layout
 ---
-The grpc-node version from [here](https://github.com/andrew8er/grpc-node/tree/feature/generic-ts-definitions).
+This project uses a Yarn workspace layout
+```
+/main          Main NPM package
+/dependencies  Dependencies as git submodules
+```
 
 Usage
 ---
