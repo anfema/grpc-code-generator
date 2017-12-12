@@ -3,6 +3,7 @@
 	"name": "@anfema/grpc-code-generator",
 	"version": "0.1.0",
 	"description": "A code generator for gRPC",
+	"license": "MIT",
 	"main": "dist/index.js",
 	"author": "André Wachter <a.wachter@anfe.ma>",
 	"scripts": {

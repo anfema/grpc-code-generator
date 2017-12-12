@@ -3,5 +3,6 @@
 	"workspaces": [
 		"main",
 		"dependencies/grpc-node/packages/grpc-native-core"
-	]
+	],
+	"license": "MIT"
 }
