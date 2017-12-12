@@ -1,16 +1,28 @@
 grpc-code-generator
 ===
 
-A code generator for gRPC `proto` files. Currently contains templates for generating Typescript definitions for the plain callback/streams based API for [grpc-node](https://github.com/grpc/grpc-node).
+A code generator for gRPC `proto` files. Currently contains templates for generating Typescript definitions for the plain callback/streams based API for a modified version of [grpc-node](https://github.com/grpc/grpc-node/pull/84).
 
 
 Directory layout
 ---
 This project uses a Yarn workspace layout
-```
-/main          Main NPM package
-/dependencies  Dependencies as git submodules
-```
+
+| Directory      | Description                    |
+|----------------|--------------------------------|
+|`/main`         | Main NPM package               |
+|`/dependencies` | Dependencies as git submodules |
+
+
+Generated files
+---
+| File                                     | Content                             |
+|------------------------------------------|-------------------------------------|
+|`/<package>/index.d.ts`                   | Interfaces for message types        |
+|`/<package>/<ServiceName>/grpc-node.d.ts` | Service types for client and server with standard grpc-node interface |
+|`/message-base.d.ts`                      | Base message type with improved constructor |
+|`/grpc.d.ts`                              | Object with constructor functions for messages and service descriptions (what `grpc.load()` returns) |
+
 
 Usage
 ---
@@ -159,7 +171,7 @@ call3.end();
 Running
 ---
 ```sh
-$ yarn/npm run grpc-gen-ts [-o <out_dir>] path/to/main.proto
+$ yarn/npm run grpc-code-generator [-o <out_dir>] path/to/main.proto
 ```
 
 Development
