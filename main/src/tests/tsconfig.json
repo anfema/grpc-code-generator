@@ -1,7 +1,10 @@
 {
 	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
-		"types": ["node"] // do not pick up @types/protobufjs (=> v5)
+		"baseUrl": ".",
+		"paths": {
+			"protobufjs": ["@types/protobufjs"]
+		}
 	},
 	"include": [
 		"**/*.ts"

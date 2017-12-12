@@ -37,5 +37,13 @@
 	},
 	"engines": {
 		"node": ">=8.0.0"
+	},
+	"ava": {
+		"files": [
+			"dist/tests/test*.js"
+		],
+		"concurrency": 4,
+		"failFast": true,
+		"failWithoutAssertions": false
 	}
 }

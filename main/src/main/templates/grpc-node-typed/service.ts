@@ -82,7 +82,7 @@ function clientMethodDeclaration(method: Method): string {
 			return `${method.name}(arg: ${requestType}): ClientReadableStream<${responseType}>;`
 		}
 		else if (method.requestStream) {
-			return `${method.name}(callback: sendUnaryData<${requestType}>): ClientWritableStream<${responseType}>;`
+			return `${method.name}(callback: sendUnaryData<${responseType}>): ClientWritableStream<${requestType}>;`
 		}
 		else {
 			return `${method.name}(arg: ${requestType}, callback: sendUnaryData<${responseType}>): void;`
