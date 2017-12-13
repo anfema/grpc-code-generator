@@ -14,6 +14,26 @@ This project uses a Yarn workspace layout
 |`/dependencies` | Dependencies as git submodules |
 
 
+Preparation
+---
+Init and clone the submodules (shallow init is enough):
+```sh
+$ git submodule update --init
+```
+
+Install dependencies & build project
+```sh
+$ yarn/npm
+```
+
+
+Running
+---
+```sh
+$ yarn/npm run grpc-code-generator [-o <out_dir>] path/to/main.proto
+```
+
+
 Generated files
 ---
 | File                                   | Content                           |
@@ -133,12 +153,6 @@ for (let i = 0; i < 10; i++) {
 stream.end();
 ```
 
-
-Running
----
-```sh
-$ yarn/npm run grpc-code-generator [-o <out_dir>] path/to/main.proto
-```
 
 Development
 ---
