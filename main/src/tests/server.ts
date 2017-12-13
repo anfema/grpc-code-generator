@@ -4,8 +4,8 @@ import {
 	ServerUnaryCall, ServerWriteableStream, ServerReadableStream, ServerDuplexStream,
 	sendUnaryData
 } from 'grpc';
-import { Request, Response } from '../gen';
-import { Service as TestService} from '../gen/TestService/grpc-node';
+import { Request, Response } from './gen';
+import { Service as TestService} from './gen/TestService/grpc-node';
 import { sleep } from './utils';
 import { getState } from './state';
 import { grpc } from './proto';

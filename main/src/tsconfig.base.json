@@ -16,7 +16,11 @@
 		"sourceMap": true,
 		"strict": true,
 		"pretty": true,
-		"rootDir": "./"
+		"rootDir": "./",
+		"baseUrl": "./",
+		"types": [
+			"node"
+		]
 	},
 	"exclude": [
 		"node_modules"
