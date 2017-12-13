@@ -1,6 +1,51 @@
 {
 	"private": true,
-	"workspaces": [
-		"main"
-	]
+	"name": "@anfema/grpc-code-generator",
+	"version": "0.1.0",
+	"description": "A code generator for gRPC",
+	"license": "MIT",
+	"main": "dist/main/index.js",
+	"author": "André Wachter <a.wachter@anfe.ma>",
+	"scripts": {
+		"prepare": "npm run build",
+		"build": "npm run main.build; npm run tests.gen; npm run tests.build",
+		"dev": "npm run main.dev & npm run tests.dev & wait",
+		"clean": "rimraf dist/* src/tests/gen/*",
+		"tests": "npm run main.build; npm run tests.gen; npm run tests.build; npm run tests.run",
+		"main.build": "tsc --project src/main",
+		"main.dev": "tsc --watch --project src/main",
+		"tests.gen": "node dist/main/main.js -o src/tests/gen src/tests/proto/test.proto",
+		"tests.build": "tsc --project src/tests",
+		"tests.dev": "tsc --watch --project src/tests",
+		"tests.run": "ava"
+	},
+	"bin": {
+		"grpc-code-generator": "dist/main/main.js"
+	},
+	"devDependencies": {
+		"@types/node": "^8.0.50",
+		"@types/protobufjs": "^5.0.31",
+		"@types/uuid": "^3.4.3",
+		"@types/yargs": "^8.0.2",
+		"ava": "^0.23.0",
+		"grpc": "^1.7.3",
+		"rimraf": "^2.6.2",
+		"typescript": "^2.6.1",
+		"uuid": "^3.1.0"
+	},
+	"dependencies": {
+		"protobufjs": "~6.8.0",
+		"yargs": "^10.0.3"
+	},
+	"engines": {
+		"node": ">=8.0.0"
+	},
+	"ava": {
+		"files": [
+			"dist/tests/test*.js"
+		],
+		"concurrency": 4,
+		"failFast": true,
+		"failWithoutAssertions": false
+	}
 }

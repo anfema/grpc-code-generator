@@ -2,7 +2,7 @@
 	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
 		"paths": {
-			"grpc": [ "../../dependencies/grpc-node/packages/grpc-native-core" ]
+			"grpc": [ "../dependencies/grpc-node/packages/grpc-native-core" ]
 		}
 	},
 	"include": [
