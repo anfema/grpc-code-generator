@@ -7,6 +7,7 @@ import messageBase from './message-base';
 import namespace from './namespace';
 import serviceDeclaration from './service';
 
+export const name = 'grpc-node-typed';
 
 export default function(templateMap: TemplateMap, root: Root): void {
 	templateMap

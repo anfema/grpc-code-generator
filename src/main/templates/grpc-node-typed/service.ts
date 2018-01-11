@@ -1,13 +1,14 @@
 import { Root, Namespace, Type, Service, Field, Method } from 'protobufjs';
 import {
 	indent, allNamespacesTransitiveOf, allNamespaceImportDeclarations, allServicesOf,
-	namespacedReferenceForType
+	namespacedReferenceForType, banner
 } from '../utils';
-
+import { name } from '.';
 
 export default function(service: Service, root: Root): string {
 	return (
-`import { Message, Long } from 'protobufjs';
+`${banner(name)}
+import { Message, Long } from 'protobufjs';
 import {
 	Client as GrpcClient,
 	ServerUnaryCall, ServiceDefinition,

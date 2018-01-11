@@ -1,9 +1,9 @@
 import { Root, Namespace, Type, Service, Field, Method } from 'protobufjs'
 import {
 	allNamespacesTransitiveOf, allServicesOf, allTypesOf, indent, allNamespaceImportDeclarations,
-	namespacedReferenceForType
+	namespacedReferenceForType, banner
 } from '../utils';
-import {  } from './';
+import { name } from '.';
 
 
 export default function(namespace: Namespace, root: Root): string {
@@ -12,7 +12,8 @@ export default function(namespace: Namespace, root: Root): string {
 
 
 	return (
-`import { Message, Long } from 'protobufjs';
+`${banner(name)}
+import { Message, Long } from 'protobufjs';
 import {
 	Client as GrpcClient,
 	ServerUnaryCall, ServiceDefinition,
@@ -32,14 +33,15 @@ function typeDeclaration(type: Type): string {
 
 	return (
 `export interface ${type.name} {
-	${indent(fields.join("\n\n"), 1)}
+	${indent(fields.join("\n"), 1)}
 }`);
 }
 
 function fieldDeclaration(field: Field): string {
+	const comment = field.comment ? `/** ${field.comment} */\n` : '';
+
 	return (
-`/** ${field.comment} */
-${field.name}: ${typeForField(field)};`);
+`${comment}${field.name}: ${typeForField(field)};`);
 }
 
 function typeForField(field: Field): string {

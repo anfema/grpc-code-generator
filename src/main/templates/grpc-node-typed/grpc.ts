@@ -9,13 +9,15 @@ import {
 	namespacedReferenceForService,
 	allRecursiveServicesOf,
 	allNamespaceImportDeclarations,
-	importReferenceFor, importFileFor
+	importReferenceFor, importFileFor,
+	banner
 } from '../utils';
-
+import { name } from '.';
 
 export default function (root: Root): string {
 	return (
-`import { Message } from 'protobufjs';
+`${banner(name)}
+import { Message } from 'protobufjs';
 import { MessageBase } from './message-base';
 ${allNamespaceImportDeclarations(root, root).join("\n")}
 ${allServiceImportDeclarations(root, root).join("\n")}

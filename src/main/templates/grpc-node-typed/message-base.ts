@@ -1,7 +1,10 @@
+import { banner } from '../utils';
+import { name } from '.';
+
 export default function() {
 	return (
-`import { Message } from 'protobufjs';
-
+`${banner(name)}
+import { Message } from 'protobufjs';
 
 export interface MessageBase<T> {
 	new(values?: Partial<T>, var_args?: string[]): T & Message;
