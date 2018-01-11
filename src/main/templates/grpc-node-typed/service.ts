@@ -44,52 +44,66 @@ function serviceClientDeclaration(service: Service): string {
 }
 
 function serverMethodDeclaration(method: Method): string {
-	method.resolve();
+	try {
+		method.resolve();
 
-	if (method.resolved && method.resolvedRequestType && method.resolvedResponseType) {
-		const requestType = namespacedReferenceForType(method.resolvedRequestType);
-		const responseType = namespacedReferenceForType(method.resolvedResponseType);
+		if (method.resolved && method.resolvedRequestType && method.resolvedResponseType) {
+			const requestType = namespacedReferenceForType(method.resolvedRequestType);
+			const responseType = namespacedReferenceForType(method.resolvedResponseType);
 
-		if (method.responseStream && method.requestStream) {
-			return `${method.name}(call: ServerDuplexStream<${requestType}, ${responseType}>): void;`
-		}
-		else if (method.responseStream) {
-			return `${method.name}(call: ServerWriteableStream<${requestType}>): void;`
-		}
-		else if (method.requestStream) {
-			return `${method.name}(call: ServerReadableStream<${requestType}>, callback: sendUnaryData<${responseType}>): void;`
+			if (method.responseStream && method.requestStream) {
+				return `${method.name}(call: ServerDuplexStream<${requestType}, ${responseType}>): void;`
+			}
+			else if (method.responseStream) {
+				return `${method.name}(call: ServerWriteableStream<${requestType}>): void;`
+			}
+			else if (method.requestStream) {
+				return `${method.name}(call: ServerReadableStream<${requestType}>, callback: sendUnaryData<${responseType}>): void;`
+			}
+			else {
+				return `${method.name}(call: ServerUnaryCall<${requestType}>, callback: sendUnaryData<${responseType}>): void;`
+			}
 		}
 		else {
-			return `${method.name}(call: ServerUnaryCall<${requestType}>, callback: sendUnaryData<${responseType}>): void;`
+			throw undefined;
 		}
 	}
-	else {
-		throw new Error(`could not resolve type for field '${method.fullName}'`);
+	catch (err) {
+		throw new Error(`${method.filename}:
+
+Cannot resolve type for field '${method.fullName}'`);
 	}
 }
 
 function clientMethodDeclaration(method: Method): string {
-	method.resolve();
+	try {
+		method.resolve();
 
-	if (method.resolved && method.resolvedRequestType && method.resolvedResponseType) {
-		const requestType = namespacedReferenceForType(method.resolvedRequestType);
-		const responseType = namespacedReferenceForType(method.resolvedResponseType);
+		if (method.resolved && method.resolvedRequestType && method.resolvedResponseType) {
+			const requestType = namespacedReferenceForType(method.resolvedRequestType);
+			const responseType = namespacedReferenceForType(method.resolvedResponseType);
 
-		if (method.responseStream && method.requestStream) {
-			return `${method.name}(): ClientDuplexStream<${requestType}, ${responseType}>;`
-		}
-		else if (method.responseStream) {
-			return `${method.name}(arg: ${requestType}): ClientReadableStream<${responseType}>;`
-		}
-		else if (method.requestStream) {
-			return `${method.name}(callback: sendUnaryData<${responseType}>): ClientWritableStream<${requestType}>;`
+			if (method.responseStream && method.requestStream) {
+				return `${method.name}(): ClientDuplexStream<${requestType}, ${responseType}>;`
+			}
+			else if (method.responseStream) {
+				return `${method.name}(arg: ${requestType}): ClientReadableStream<${responseType}>;`
+			}
+			else if (method.requestStream) {
+				return `${method.name}(callback: sendUnaryData<${responseType}>): ClientWritableStream<${requestType}>;`
+			}
+			else {
+				return `${method.name}(arg: ${requestType}, callback: sendUnaryData<${responseType}>): void;`
+			}
 		}
 		else {
-			return `${method.name}(arg: ${requestType}, callback: sendUnaryData<${responseType}>): void;`
+			throw undefined;
 		}
 	}
-	else {
-		throw new Error(`could not resolve type for field '${method.fullName}'`);
+	catch (err) {
+		throw new Error(`${method.filename}:
+
+Cannot resolve type for field '${method.fullName}'`);
 	}
 }
 
