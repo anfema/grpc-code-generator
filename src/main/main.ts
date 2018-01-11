@@ -11,12 +11,17 @@ const args = yargs
 	.option('out', {
 		alias: 'o',
 		default: 'src-gen',
-		desc: 'output directory of generated files'
+		desc: 'Output directory of generated files'
+	})
+	.option('proto_path', {
+		alias: 'I',
+		default: [process.cwd()],
+		desc: 'Root path for resolving imports (may be specified more than once)'
 	})
 	.option('template', {
 		alias: 't',
 		default: 'grpc-node-typed',
-		desc: 'template for code generation'
+		desc: 'Template for code generation'
 	})
 	.help()
 	.version()
@@ -24,31 +29,32 @@ const args = yargs
 
 (async function() {
 	try {
-		if (args._.length === 1) {
-			const templateMap = new TemplateMap();
+		const templateMap = new TemplateMap();
 
-			// @ts-ignore
-			const templatePath =
-				tryResolveModule(path.join(process.cwd(), args['t'])) ||
-				tryResolveModule(path.join(__dirname, '..', 'main', 'templates', args['t']));
+		// @ts-ignore
+		const templatePath =
+			tryResolveModule(path.join(process.cwd(), args['t'])) ||
+			tryResolveModule(path.join(__dirname, '..', 'main', 'templates', args['t']));
 
-			if (templatePath) {
-				const template = require(templatePath).default as TemplateFunction;
+		if (templatePath) {
+			const template = require(templatePath).default as TemplateFunction;
+			// ensure paths are absolute
+			const protoPaths = args._.map((p: string) => path.isAbsolute(p) ? p : path.resolve(p))
+			const rootPaths = (typeof args['I'] === 'string'
+				? [args['I']]
+				: args['I'])
+					.map((p: string) => path.isAbsolute(p) ? p : path.resolve(p));
 
-				const protoPath = path.join(process.cwd(), args._[0]);
-				const root = await loadProto(protoPath);
+			const root = await loadProto(protoPaths, rootPaths);
 
-				template(templateMap, root);
+			template(templateMap, root);
 
-				await templateMap.writeFiles(path.join(process.cwd(), args['o']));
-				process.exit(0);
-			}
-			else {
-				console.log(`Error: Template module '${args['t']}' not found.`)
-			}
+			await templateMap.writeFiles(path.join(process.cwd(), args['o']));
+			process.exit(0);
 		}
 		else {
-			// TODO print an error message
+			console.log(`Error: Template module '${args['t']}' not found.`);
+			process.exit(1);
 		}
 	}
 	catch (err) {

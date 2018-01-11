@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as utils from 'util';
 import { promisify } from 'util';
 import { Root } from 'protobufjs';
 
@@ -47,13 +48,43 @@ const writeFile = promisify(fs.writeFile);
 const mkdir = promisify(fs.mkdir);
 const access = promisify(fs.access);
 
-export async function loadProto(protoPath: string): Promise<Root> {
+export async function loadProto(protoPaths: string[], rootPaths: string[]): Promise<Root> {
 	const root = new Root();
+	root.resolvePath = (origin: string, target: string) => resolvePath(rootPaths, origin, target);
 
-	return root.load(protoPath, {
+	return root.load(protoPaths, {
 		keepCase: true
 	})
 }
+
+function resolvePath(rootPaths: string[], origin: string, target: string): string | null {
+	if (path.isAbsolute(target)) {
+		// top level file
+		return target;
+	}
+	else {
+		const resolvedRoot = rootPaths.find(r => exists(path.join(r, target)))
+		if (resolvedRoot) {
+			// resolved via one of rootPaths
+			return path.join(resolvedRoot, target);
+		}
+		else {
+			// resolve relative to origin, even it is out of spec?
+			return null;
+		}
+	}
+}
+
+function exists(path: string): boolean {
+	try {
+		fs.accessSync(path);
+		return true;
+	}
+	catch (err) {
+		return false
+	}
+}
+
 
 function uniq<T>(array: T[]): T[] {
 	return array
