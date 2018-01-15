@@ -27,9 +27,9 @@ export default interface Grpc {
 
 function namespaceDeclarations(namespace: NamespaceBase, indentLevel: number = 0): string {
 	const serviceTypes = servicesOf(namespace).map(ns => serviceDeclaration(ns));
-	const subNamespaces = subNamespacesOf(namespace).map(ns =>
-		subNamespaceDeclaration(ns, indentLevel)
-	);
+	const subNamespaces = subNamespacesOf(namespace)
+		.filter(ns => recursiveServicesOf(ns).length > 0)
+		.map(ns => subNamespaceDeclaration(ns, indentLevel));
 
 	return indent(
 `${serviceTypes.join("\n")}

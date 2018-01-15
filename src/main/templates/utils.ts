@@ -62,7 +62,7 @@ export function recursiveNamespacesOf(namespace: Namespace): Namespace[] {
 	return Array.from(done);
 }
 
-export function recursiveServicesOf(namespace: Root): Service[] {
+export function recursiveServicesOf(namespace: NamespaceBase): Service[] {
 	const done = new Set<Namespace>();
 	const todo = new Set<Namespace>([namespace]);
 	const services = new Array<Service>();
