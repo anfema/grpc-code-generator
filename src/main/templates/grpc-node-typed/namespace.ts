@@ -14,13 +14,7 @@ export default function(namespace: Namespace, root: Root): string {
 	return (
 `${banner(name)}
 import { Message, Long } from 'protobufjs';
-import {
-	Client as GrpcClient,
-	ServerUnaryCall, ServiceDefinition,
-	ServerReadableStream, ServerWriteableStream, ServerDuplexStream,
-	ClientReadableStream, ClientWritableStream, ClientDuplexStream,
-	sendUnaryData,
-} from 'grpc';
+
 ${allNamespaceImportDeclarations(root, namespace).join("\n")}
 
 

@@ -8,7 +8,6 @@ import {
 	namespacedReferenceForType,
 	namespacedReferenceForService,
 	allRecursiveServicesOf,
-	allNamespaceImportDeclarations,
 	importReferenceFor, importFileFor,
 	banner
 } from '../utils';
@@ -18,9 +17,7 @@ export default function (root: Root): string {
 	return (
 `${banner(name)}
 import { Message } from 'protobufjs';
-${allNamespaceImportDeclarations(root, root).join("\n")}
 ${allServiceImportDeclarations(root, root).join("\n")}
-
 
 export default interface Grpc {
 	${indent(namespaceDeclarations(root), 1)}
@@ -29,20 +26,14 @@ export default interface Grpc {
 }
 
 function namespaceDeclarations(namespace: NamespaceBase, indentLevel: number = 0): string {
-	const messageTypes = allTypesOf(namespace).map(ns => typeDeclaration(ns));
 	const serviceTypes = allServicesOf(namespace).map(ns => serviceDeclaration(ns));
 	const subNamespaces = allSubNamespacesOf(namespace).map(ns =>
 		subNamespaceDeclaration(ns, indentLevel)
 	);
 
 	return indent(
-`// message types
-${messageTypes.join("\n")}
-
-// services
-${serviceTypes.join("\n")}
-
-${subNamespaces.join("\n\n")}`, indentLevel);
+`${serviceTypes.join("\n")}
+${subNamespaces.join("\n")}`, indentLevel);
 }
 
 function subNamespaceDeclaration(ns: Namespace, indentLevel: number): string {
@@ -50,10 +41,6 @@ function subNamespaceDeclaration(ns: Namespace, indentLevel: number): string {
 `${ns.name}: {
 	${indent(namespaceDeclarations(ns as NamespaceBase, indentLevel), indentLevel + 1)}
 }`);
-}
-
-function typeDeclaration(type: Type): string {
-	return `${type.name}: Message<${namespacedReferenceForType(type)}>;`;
 }
 
 function serviceDeclaration(service: Service): string {
