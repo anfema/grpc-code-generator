@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Enum, Service } from 'protobufjs';
+import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Enum, Service, types } from 'protobufjs';
 
 export function banner(templateName: string): string {
 	return (
@@ -63,23 +63,15 @@ export function recursiveNamespacesOf(namespace: Namespace): Namespace[] {
 }
 
 export function recursiveServicesOf(namespace: NamespaceBase): Service[] {
-	const done = new Set<Namespace>();
-	const todo = new Set<Namespace>([namespace]);
-	const services = new Array<Service>();
+	return recursiveNamespacesOf(namespace)
+		.map(ns => servicesOf(ns))
+		.reduce((acc, services) => acc.concat(services), []);
+}
 
-	while (todo.size > 0) {
-		todo.forEach(ns => {
-			todo.delete(ns);
-
-			if (!done.has(ns)) {
-				done.add(ns);
-				namespacesOf(ns).forEach(ns => todo.add(ns));
-				services.push(...servicesOf(ns));
-			}
-		});
-	}
-
-	return services;
+export function recursiveTypesOf(namespace: NamespaceBase): Type[] {
+	return recursiveNamespacesOf(namespace)
+		.map(ns => typesOf(ns))
+		.reduce((acc, services) => acc.concat(services), []);
 }
 
 export function namespacesOf(namespace: NamespaceBase): NamespaceBase[] {

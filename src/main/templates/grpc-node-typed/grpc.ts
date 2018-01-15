@@ -4,8 +4,6 @@ import {
 	namespacesOf,
 	recursiveNamespacesOf,
 	servicesOf,
-	typesOf,
-	namespacedReferenceForType,
 	namespacedReferenceForService,
 	recursiveServicesOf,
 	importReferenceFor, importFileFor,
@@ -48,6 +46,7 @@ function serviceDeclaration(service: Service): string {
 }
 
 function serviceImportDeclarations(root: Root, baseNs: Namespace): string[] {
-	return recursiveServicesOf(root)
-		.map(ns => `import * as ${importReferenceFor(ns)} from '${importFileFor(ns, baseNs)}/grpc-node';`);
+	return recursiveServicesOf(root).map(ns =>
+		`import * as ${importReferenceFor(ns)} from '${importFileFor(ns, baseNs)}/grpc-node';`
+	);
 }

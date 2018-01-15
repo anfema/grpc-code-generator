@@ -1,6 +1,10 @@
 import * as path from 'path';
 import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 'protobufjs'
-import { parentChainOf, recursiveNamespacesOf, fileNameForNamespace, recursiveServicesOf } from '../utils';
+import {
+	parentChainOf,
+	recursiveNamespacesOf, recursiveServicesOf, recursiveTypesOf,
+	fileNameForNamespace
+} from '../utils';
 import { TemplateFunction, TemplateMap } from '../..';
 import grpc from './grpc';
 import namespace from './namespace';
