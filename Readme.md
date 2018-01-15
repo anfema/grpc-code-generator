@@ -163,4 +163,3 @@ Development
 Todo
 ---
 * [ ] handle enums
-* [ ] handle nested message types
