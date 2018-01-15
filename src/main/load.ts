@@ -27,20 +27,21 @@ export default async function(
 	return root.load(protoPaths, options);
 }
 
-function resolvePath(rootPaths: string[], origin: string, target: string): string | null {
+function resolvePath(rootPaths: string[], origin: string, target: string): string {
 	if (path.isAbsolute(target)) {
 		// top level file
 		return target;
 	}
 	else {
-		const resolvedRoot = rootPaths.find(r => exists(path.join(r, target)))
+		const resolvedRoot = rootPaths.find(r => exists(path.join(r, target)));
+
 		if (resolvedRoot) {
 			// resolved via one of rootPaths
 			return path.join(resolvedRoot, target);
 		}
 		else {
 			// resolve relative to origin, even it is out of spec?
-			return null;
+			throw new Error(`Could not find file "${target}"`);
 		}
 	}
 }
