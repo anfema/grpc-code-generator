@@ -9,7 +9,12 @@ import { Service as TestService} from './gen/TestService/grpc-node';
 import { sleep } from './utils';
 import { getState } from './state';
 import { grpc } from './proto';
+import { Buffer } from 'buffer';
 
+const defaultResponse: Response = {
+	id: '',
+	count: 0
+}
 
 class TestServiceHandler implements TestService {
 	unaryCall(call: ServerUnaryCall<Request>, callback: sendUnaryData<Response>): void {
@@ -17,17 +22,17 @@ class TestServiceHandler implements TestService {
 
 		switch (request.mode) {
 		case 'normal':
-			callback(null, new grpc.Response());
+			callback(null, defaultResponse);
 			break;
 		case 'slow':
 			setTimeout(() => {
-				callback(null, new grpc.Response());
+				callback(null, defaultResponse);
 			}, 1000);
 			break;
 		case 'retry':
 			const state = getState(request.id)
 			if (state.retries === 2) {
-				callback(null, new grpc.Response());
+				callback(null, defaultResponse);
 			}
 			else {
 				state.retries++;
@@ -48,14 +53,14 @@ class TestServiceHandler implements TestService {
 		switch (request.mode) {
 		case 'normal':
 			for (let i = 0; i < request.count; i++) {
-				call.write(new grpc.Response());
+				call.write(defaultResponse);
 			}
 			call.end();
 			break;
 		case 'slow':
 			setTimeout(() => {
 				for (let i = 0; i < request.count; i++) {
-					call.write(new grpc.Response());
+					call.write(defaultResponse);
 				}
 				call.end();
 			}, 1000);
@@ -64,7 +69,9 @@ class TestServiceHandler implements TestService {
 			const state = getState(request.id)
 			if (state.retries === 2) {
 				for (let i = 0; i < request.count; i++) {
-					call.write(new grpc.Response());
+					call.write({
+
+					});
 				}
 				call.end();
 			}
@@ -96,17 +103,17 @@ class TestServiceHandler implements TestService {
 				const request = requests[0];
 				switch (request.mode) {
 				case 'normal':
-					callback(null, new grpc.Response());
+						callback(null, defaultResponse);
 					break;
 				case 'slow':
 					setTimeout(() => {
-						callback(null, new grpc.Response());
+						callback(null, defaultResponse);
 					}, 1000);
 					break;
 				case 'retry':
 					const state = getState(request.id)
 					if (state.retries === 2) {
-						callback(null, new grpc.Response());
+						callback(null, defaultResponse);
 					}
 					else {
 						state.retries++;
@@ -137,13 +144,17 @@ class TestServiceHandler implements TestService {
 				switch (request.mode) {
 				case 'normal':
 					for (let i = 0; i < request.count; i++) {
-						call.write(new grpc.Response());
+						call.write({
+
+						});
 					}
 					call.end();
 				case 'slow':
 					setTimeout(() => {
 						for (let i = 0; i < request.count; i++) {
-							call.write(new grpc.Response());
+							call.write({
+
+							});
 						}
 						call.end();
 					}, 1000);
@@ -152,7 +163,9 @@ class TestServiceHandler implements TestService {
 					const state = getState(request.id)
 					if (state.retries === 2) {
 						for (let i = 0; i < request.count; i++) {
-							call.write(new grpc.Response());
+							call.write({
+
+							});
 						}
 						call.end();
 					}

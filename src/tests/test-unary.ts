@@ -14,7 +14,11 @@ const client = createClient(port);
 
 test('Unary call | normal', (t) => {
 	return callbackAsPromise(cb => {
-		client.unaryCall(new grpc.Request({ mode: 'normal' }), cb)
+		client.unaryCall({
+			id: '',
+			mode: 'normal',
+			count: 0,
+		}, cb)
 	});
 
 });
@@ -22,20 +26,32 @@ test('Unary call | normal', (t) => {
 test('Unary call | slow (short timeout should fail)', (t) => {
 	return t.throws(Promise.race([
 		timeout(500),
-		callbackAsPromise(cb => { client.unaryCall(new grpc.Request({ mode: 'slow' }), cb) })
+		callbackAsPromise(cb => { client.unaryCall({
+			id: '',
+			mode: 'slow',
+			count: 0,
+		}, cb) })
 	]));
 });
 
 test('Unary call | slow (long timeout should not fail)', (t) => {
 	return Promise.race([
 		timeout(1500),
-		callbackAsPromise(cb => { client.unaryCall(new grpc.Request({ mode: 'slow' }), cb) })
+		callbackAsPromise(cb => { client.unaryCall({
+			id: '',
+			mode: 'slow',
+			count: 0,
+		}, cb) })
 	]);
 });
 
 test('Unary call | error (should fail)', (t) => {
 	return t.throws(callbackAsPromise(cb => {
-		client.unaryCall(new grpc.Request({ mode: 'error' }), cb)
+		client.unaryCall({
+			id: '',
+			mode: 'error',
+			count: 0,
+		}, cb)
 	}));
 });
 
@@ -46,10 +62,11 @@ test('Unary call | retry (retry 2 times, should fail)', async (t) => {
 
 	for (let i = 0; i < 2; i++) {
 		try {
-			await callbackAsPromise(cb => client.unaryCall(new grpc.Request({
+			await callbackAsPromise(cb => client.unaryCall({
 				id: id,
-				mode: 'retry'
-			}), cb));
+				mode: 'retry',
+				count: 0,
+			}, cb));
 			t.fail();
 		}
 		catch (err) {
@@ -65,10 +82,11 @@ test('Unary call | retry (retry 3 times, should not fail)', async (t) => {
 
 	for (let i = 0; i < 3; i++) {
 		try {
-			await callbackAsPromise(cb => client.unaryCall(new grpc.Request({
+			await callbackAsPromise(cb => client.unaryCall({
 				id: id,
-				mode: 'retry'
-			}), cb));
+				mode: 'retry',
+				count: 0,
+			}, cb));
 
 			if (i === 2) {
 				t.pass();

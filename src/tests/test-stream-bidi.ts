@@ -15,7 +15,11 @@ test('BiDi response | Normal', async (t) => {
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
-		stream.write(new grpc.Request({ mode: 'normal' }));
+		stream.write({
+			id: '',
+			mode: 'normal',
+			count: 0,
+		});
 	}
 	stream.end();
 
@@ -27,7 +31,11 @@ test('Bidi response | Slow (short timeout should fail)', (t) => {
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
-		stream.write(new grpc.Request({ mode: 'slow' }));
+		stream.write({
+			id: '',
+			mode: 'slow',
+			count: 0,
+		});
 	}
 	stream.end();
 
@@ -41,7 +49,11 @@ test('BiDi response | Slow (long timeout should not fail)', (t) => {
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
-		stream.write(new grpc.Request({ mode: 'slow' }));
+		stream.write({
+			id: '',
+			mode: 'slow',
+			count: 0,
+		});
 	}
 	stream.end();
 
@@ -55,7 +67,11 @@ test('BiDi response | Error (should fail)', (t) => {
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
-		stream.write(new grpc.Request({ mode: 'error' }));
+		stream.write({
+			id: '',
+			mode: 'error',
+			count: 0,
+		});
 	}
 	stream.end();
 
@@ -70,7 +86,11 @@ test('BiDi response | Retry (retry 2 times, should fail)', async (t) => {
 	for (let i = 0; i < 2; i++) {
 		try {
 			const stream = client.streamBidi();
-			stream.write(new grpc.Request({ mode: 'retry' }));
+			stream.write({
+				id: '',
+				mode: 'retry',
+				count: 0,
+			});
 			stream.end();
 
 			await readStreamAsPromise(stream)
@@ -91,7 +111,11 @@ test('Stream response | Retry request(retry 3 times, should not fail)', async (t
 	for (let i = 0; i < 3; i++) {
 		try {
 			const stream = client.streamBidi();
-			stream.write(new grpc.Request({ mode: 'retry', id: id }));
+			stream.write({
+				id: id,
+				mode: 'retry',
+				count: 0,
+			});
 			stream.end();
 			await readStreamAsPromise(stream)
 

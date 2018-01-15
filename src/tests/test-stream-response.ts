@@ -12,11 +12,13 @@ import { callbackAsPromise, timeout, readStreamAsPromise } from './utils';
 const port = createServer();
 const client = createClient(port);
 
-
-
 test('Stream response | Normal', async (t) => {
 	const response = await readStreamAsPromise(
-		client.streamResponse(new grpc.Request({ mode: 'normal', count: 4 }))
+		client.streamResponse({
+			id: '',
+			mode: 'normal',
+			count: 4
+		})
 	);
 
 	t.is(response.length, 4);
@@ -26,7 +28,11 @@ test('Stream response | Slow (short timeout should fail)', (t) => {
 	return t.throws(Promise.race([
 		timeout(500),
 		readStreamAsPromise(
-			client.streamResponse(new grpc.Request({ mode: 'slow', count: 4 }))
+			client.streamResponse({
+				id: '',
+				mode: 'slow',
+				count: 4
+			})
 		)
 	]));
 });
@@ -35,14 +41,22 @@ test('Stream response | Slow (long timeout should not fail)', (t) => {
 	return Promise.race([
 		timeout(1500),
 		readStreamAsPromise(
-			client.streamResponse(new grpc.Request({ mode: 'slow', count: 4 }))
+			client.streamResponse({
+				id: '',
+				mode: 'slow',
+				count: 4
+			})
 		)
 	]);
 });
 
 test('Stream response | Error (should fail)', (t) => {
 	return t.throws(readStreamAsPromise(
-		client.streamResponse(new grpc.Request({ mode: 'error' }))
+		client.streamResponse({
+			id: '',
+			mode: 'error',
+			count: 0,
+		})
 	));
 });
 
@@ -52,10 +66,11 @@ test('Stream response | Retry (retry 2 times, should fail)', async (t) => {
 
 	for (let i = 0; i < 2; i++) {
 		try {
-			await readStreamAsPromise(client.streamResponse(new grpc.Request({
+			await readStreamAsPromise(client.streamResponse({
 				id: id,
-				mode: 'retry'
-			})));
+				mode: 'retry',
+				count: 0,
+			}));
 
 			t.fail();
 		}
@@ -71,10 +86,11 @@ test('Stream response | Retry (retry 3 times, should not fail)', async (t) => {
 
 	for (let i = 0; i < 3; i++) {
 		try {
-			await readStreamAsPromise(client.streamResponse(new grpc.Request({
+			await readStreamAsPromise(client.streamResponse({
 				id: id,
-				mode: 'retry'
-			})));
+				mode: 'retry',
+				count: 0,
+			}));
 
 			if (i === 2) {
 				t.pass();

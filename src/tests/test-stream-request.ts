@@ -15,7 +15,11 @@ test('Stream Request | Normal', async (t) => {
 	return callbackAsPromise(cb => {
 		const requestStream = client.streamRequest(cb);
 		for (let i = 0; i < 10; i++) {
-			requestStream.write(new grpc.Request({ mode: 'normal' }));
+			requestStream.write({
+				id: '',
+				mode: 'normal',
+				count: 0,
+			});
 		}
 		requestStream.end();
 	});
@@ -27,7 +31,11 @@ test('Stream Request | Slow (short timeout should fail)', (t) => {
 		callbackAsPromise(cb => {
 			const requestStream = client.streamRequest(cb);
 			for (let i = 0; i < 10; i++) {
-				requestStream.write(new grpc.Request({ mode: 'slow' }));
+				requestStream.write({
+					id: '',
+					mode: 'slow',
+					count: 0,
+				});
 			}
 			requestStream.end();
 		})
@@ -40,7 +48,11 @@ test('Stream request | Slow (long timeout should not fail)', (t) => {
 		callbackAsPromise(cb => {
 			const requestStream = client.streamRequest(cb);
 			for (let i = 0; i < 10; i++) {
-				requestStream.write(new grpc.Request({ mode: 'slow' }));
+				requestStream.write({
+					id: '',
+					mode: 'slow',
+					count: 0,
+				});
 			}
 			requestStream.end();
 		})
@@ -51,7 +63,11 @@ test('Stream request | Error (should fail)', (t) => {
 	return t.throws(callbackAsPromise(cb => {
 		const requestStream = client.streamRequest(cb);
 		for (let i = 0; i < 10; i++) {
-			requestStream.write(new grpc.Request({ mode: 'error' }));
+			requestStream.write({
+				id: '',
+				mode: 'error',
+				count: 0,
+			});
 		}
 		requestStream.end();
 	}));
@@ -65,7 +81,11 @@ test('Stream request | Retry (retry 2 times, should fail)', async (t) => {
 		try {
 			await callbackAsPromise(cb => {
 				const requestStream = client.streamRequest(cb);
-				requestStream.write(new grpc.Request({ mode: 'retry' }));
+				requestStream.write({
+					id: '',
+					mode: 'retry',
+					count: 0,
+				});
 				requestStream.end();
 			});
 			t.fail();
@@ -84,7 +104,11 @@ test('Stream request | Retry request(retry 3 times, should not fail)', async (t)
 		try {
 			await callbackAsPromise(cb => {
 				const requestStream = client.streamRequest(cb);
-				requestStream.write(new grpc.Request({ mode: 'retry', id: id }));
+				requestStream.write({
+					id: id,
+					mode: 'retry',
+					count: 0,
+				});
 				requestStream.end();
 			});
 
