@@ -18,7 +18,6 @@ export default function (root: Root): string {
 	return (
 `${banner(name)}
 import { Message } from 'protobufjs';
-import { MessageBase } from './message-base';
 ${allNamespaceImportDeclarations(root, root).join("\n")}
 ${allServiceImportDeclarations(root, root).join("\n")}
 
@@ -54,7 +53,7 @@ function subNamespaceDeclaration(ns: Namespace, indentLevel: number): string {
 }
 
 function typeDeclaration(type: Type): string {
-	return `${type.name}: MessageBase<${namespacedReferenceForType(type)}>;`;
+	return `${type.name}: Message<${namespacedReferenceForType(type)}>;`;
 }
 
 function serviceDeclaration(service: Service): string {

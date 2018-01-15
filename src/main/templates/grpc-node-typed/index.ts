@@ -3,7 +3,6 @@ import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 
 import { parentChainOf, allRecursiveNamespacesOf, fileNameForNamespace, allRecursiveServicesOf } from '../utils';
 import { TemplateFunction, TemplateMap } from '../..';
 import grpc from './grpc';
-import messageBase from './message-base';
 import namespace from './namespace';
 import serviceDeclaration from './service';
 
@@ -11,8 +10,7 @@ export const name = 'grpc-node-typed';
 
 export default function(templateMap: TemplateMap, root: Root): void {
 	templateMap
-		.addTemplate('grpc.d.ts', grpc(root))
-		.addTemplate('message-base.d.ts', messageBase());
+		.addTemplate('grpc.d.ts', grpc(root));
 
 	allRecursiveNamespacesOf(root).forEach(ns => {
 		templateMap.addTemplate(fileNameForNamespace(ns), namespace(ns, root))
