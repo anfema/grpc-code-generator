@@ -1,6 +1,6 @@
 import { Root, Namespace, Type, Service, Field, Method } from 'protobufjs';
 import {
-	indent, allNamespacesTransitiveOf, allNamespaceImportDeclarations, allServicesOf,
+	indent, allRecursiveNamespacesOf, allNamespaceImportDeclarations, allServicesOf,
 	namespacedReferenceForType, banner
 } from '../utils';
 import { name } from '.';

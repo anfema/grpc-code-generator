@@ -2,7 +2,7 @@ import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 
 import {
 	indent,
 	allSubNamespacesOf,
-	allNamespacesTransitiveOf,
+	allRecursiveNamespacesOf,
 	allServicesOf,
 	allTypesOf,
 	namespacedReferenceForType,

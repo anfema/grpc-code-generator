@@ -45,7 +45,7 @@ export function indent(value: string, level: number, indenter: string = "\t"): s
  *
  * @param namespace
  */
-export function allNamespacesTransitiveOf(namespace: Namespace): Namespace[] {
+export function allRecursiveNamespacesOf(namespace: Namespace): Namespace[] {
 	const done = new Set<Namespace>();
 	const todo = new Set<Namespace>([namespace])
 
@@ -113,7 +113,7 @@ export function parentChainOf(obj: ReflectionObject): ReflectionObject[] {
 }
 
 export function allNamespaceImportDeclarations(root: Root, baseNs: Namespace): string[] {
-	return allNamespacesTransitiveOf(root)
+	return allRecursiveNamespacesOf(root)
 		.map(ns => `import * as ${importReferenceFor(ns)} from '${importFileFor(ns, baseNs)}';`);
 }
 
