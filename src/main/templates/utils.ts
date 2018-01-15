@@ -54,7 +54,7 @@ export function recursiveNamespacesOf(namespace: Namespace): Namespace[] {
 
 			if (! done.has(ns)) {
 				done.add(ns);
-				subNamespacesOf(ns).forEach(ns => todo.add(ns));
+				namespacesOf(ns).forEach(ns => todo.add(ns));
 			}
 		});
 	}
@@ -73,7 +73,7 @@ export function recursiveServicesOf(namespace: NamespaceBase): Service[] {
 
 			if (!done.has(ns)) {
 				done.add(ns);
-				subNamespacesOf(ns).forEach(ns => todo.add(ns));
+				namespacesOf(ns).forEach(ns => todo.add(ns));
 				services.push(...servicesOf(ns));
 			}
 		});
@@ -82,7 +82,7 @@ export function recursiveServicesOf(namespace: NamespaceBase): Service[] {
 	return services;
 }
 
-export function subNamespacesOf(namespace: NamespaceBase): NamespaceBase[] {
+export function namespacesOf(namespace: NamespaceBase): NamespaceBase[] {
 	return namespace.nestedArray.filter(
 		ns => ns.constructor === Namespace || ns.constructor === Type
 	) as NamespaceBase[];

@@ -1,7 +1,7 @@
 import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 'protobufjs';
 import {
 	indent,
-	subNamespacesOf,
+	namespacesOf,
 	recursiveNamespacesOf,
 	servicesOf,
 	typesOf,
@@ -27,7 +27,7 @@ export default interface Grpc {
 
 function namespaceDeclarations(namespace: NamespaceBase, indentLevel: number = 0): string {
 	const serviceTypes = servicesOf(namespace).map(ns => serviceDeclaration(ns));
-	const subNamespaces = subNamespacesOf(namespace)
+	const subNamespaces = namespacesOf(namespace)
 		.filter(ns => recursiveServicesOf(ns).length > 0)
 		.map(ns => subNamespaceDeclaration(ns, indentLevel));
 
