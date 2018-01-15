@@ -109,6 +109,7 @@ export function parentChainOf(obj: ReflectionObject): ReflectionObject[] {
 
 export function namespaceImportDeclarations(root: Root, baseNs: Namespace): string[] {
 	return recursiveNamespacesOf(root)
+		.filter(ns => hasTypeOrEnum(ns))
 		.map(ns => `import * as ${importReferenceFor(ns)} from '${importFileFor(ns, baseNs)}';`);
 }
 
@@ -152,4 +153,10 @@ export function namespacedReferenceForType(type: Type | Enum): string {
 
 export function namespacedReferenceForService(service: Service): string {
 	return importReferenceFor(service);
+}
+
+export function hasTypeOrEnum(ns: NamespaceBase): boolean {
+	return ns.nestedArray.find(o => o.constructor === Type || o.constructor === Enum ||
+		(o.constructor === Namespace && hasTypeOrEnum(o as Namespace) !== undefined)
+	) !== undefined;
 }

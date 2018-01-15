@@ -3,7 +3,8 @@ import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 
 import {
 	parentChainOf,
 	recursiveNamespacesOf, recursiveServicesOf, recursiveTypesOf,
-	fileNameForNamespace
+	fileNameForNamespace,
+    hasTypeOrEnum
 } from '../utils';
 import { TemplateFunction, TemplateMap } from '../..';
 import grpc from './grpc';
@@ -17,7 +18,9 @@ export default function(templateMap: TemplateMap, root: Root): void {
 		.addTemplate('grpc.d.ts', grpc(root));
 
 	recursiveNamespacesOf(root).forEach(ns => {
-		templateMap.addTemplate(fileNameForNamespace(ns), namespace(ns, root))
+		if (hasTypeOrEnum(ns)) {
+			templateMap.addTemplate(fileNameForNamespace(ns), namespace(ns, root))
+		}
 	});
 
 	recursiveServicesOf(root).forEach(service => {
