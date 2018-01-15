@@ -1,6 +1,6 @@
 import { Root, Namespace, Type, Service, Field, Method } from 'protobufjs';
 import {
-	indent, allRecursiveNamespacesOf, allNamespaceImportDeclarations, allServicesOf,
+	indent, recursiveNamespacesOf, namespaceImportDeclarations, servicesOf,
 	namespacedReferenceForType, banner
 } from '../utils';
 import { name } from '.';
@@ -16,7 +16,7 @@ import {
 	ClientReadableStream, ClientWritableStream, ClientDuplexStream,
 	sendUnaryData,
 } from 'grpc';
-${allNamespaceImportDeclarations(root, service).join("\n")}
+${namespaceImportDeclarations(root, service).join("\n")}
 
 
 ${serviceServerDeclaration(service)}

@@ -1,13 +1,13 @@
 import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 'protobufjs';
 import {
 	indent,
-	allSubNamespacesOf,
-	allRecursiveNamespacesOf,
-	allServicesOf,
-	allTypesOf,
+	subNamespacesOf,
+	recursiveNamespacesOf,
+	servicesOf,
+	typesOf,
 	namespacedReferenceForType,
 	namespacedReferenceForService,
-	allRecursiveServicesOf,
+	recursiveServicesOf,
 	importReferenceFor, importFileFor,
 	banner
 } from '../utils';
@@ -17,7 +17,7 @@ export default function (root: Root): string {
 	return (
 `${banner(name)}
 import { Message } from 'protobufjs';
-${allServiceImportDeclarations(root, root).join("\n")}
+${serviceImportDeclarations(root, root).join("\n")}
 
 export default interface Grpc {
 	${indent(namespaceDeclarations(root), 1)}
@@ -26,8 +26,8 @@ export default interface Grpc {
 }
 
 function namespaceDeclarations(namespace: NamespaceBase, indentLevel: number = 0): string {
-	const serviceTypes = allServicesOf(namespace).map(ns => serviceDeclaration(ns));
-	const subNamespaces = allSubNamespacesOf(namespace).map(ns =>
+	const serviceTypes = servicesOf(namespace).map(ns => serviceDeclaration(ns));
+	const subNamespaces = subNamespacesOf(namespace).map(ns =>
 		subNamespaceDeclaration(ns, indentLevel)
 	);
 
@@ -47,7 +47,7 @@ function serviceDeclaration(service: Service): string {
 	return `${service.name}: typeof ${namespacedReferenceForService(service)}.Client;`
 }
 
-function allServiceImportDeclarations(root: Root, baseNs: Namespace): string[] {
-	return allRecursiveServicesOf(root)
+function serviceImportDeclarations(root: Root, baseNs: Namespace): string[] {
+	return recursiveServicesOf(root)
 		.map(ns => `import * as ${importReferenceFor(ns)} from '${importFileFor(ns, baseNs)}/grpc-node';`);
 }

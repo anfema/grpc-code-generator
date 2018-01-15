@@ -1,20 +1,20 @@
 import { Root, Namespace, Type, Service, Field, Method, Enum } from 'protobufjs'
 import {
-	allRecursiveNamespacesOf, allServicesOf, allTypesOf, enumsOf, indent, allNamespaceImportDeclarations,
+	recursiveNamespacesOf, servicesOf, typesOf, enumsOf, indent, namespaceImportDeclarations,
 	namespacedReferenceForType, banner
 } from '../utils';
 import { name } from '.';
 
 
 export default function(namespace: Namespace, root: Root): string {
-	const messageTypes = allTypesOf(namespace).map(t => typeDeclaration(t));
+	const messageTypes = typesOf(namespace).map(t => typeDeclaration(t));
 	const enums = enumsOf(namespace).map(e => enumDeclaration(e));
 
 	return (
 `${banner(name)}
 import { Message, Long } from 'protobufjs';
 
-${allNamespaceImportDeclarations(root, namespace).join("\n")}
+${namespaceImportDeclarations(root, namespace).join("\n")}
 
 ${messageTypes.join("\n")}
 ${enums.join("\n")}

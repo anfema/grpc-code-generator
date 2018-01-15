@@ -44,7 +44,7 @@ export function indent(value: string, level: number, indenter: string = "\t"): s
  *
  * @param namespace
  */
-export function allRecursiveNamespacesOf(namespace: Namespace): Namespace[] {
+export function recursiveNamespacesOf(namespace: Namespace): Namespace[] {
 	const done = new Set<Namespace>();
 	const todo = new Set<Namespace>([namespace])
 
@@ -54,7 +54,7 @@ export function allRecursiveNamespacesOf(namespace: Namespace): Namespace[] {
 
 			if (! done.has(ns)) {
 				done.add(ns);
-				allSubNamespacesOf(ns).forEach(ns => todo.add(ns));
+				subNamespacesOf(ns).forEach(ns => todo.add(ns));
 			}
 		});
 	}
@@ -62,7 +62,7 @@ export function allRecursiveNamespacesOf(namespace: Namespace): Namespace[] {
 	return Array.from(done);
 }
 
-export function allRecursiveServicesOf(namespace: Root): Service[] {
+export function recursiveServicesOf(namespace: Root): Service[] {
 	const done = new Set<Namespace>();
 	const todo = new Set<Namespace>([namespace]);
 	const services = new Array<Service>();
@@ -73,8 +73,8 @@ export function allRecursiveServicesOf(namespace: Root): Service[] {
 
 			if (!done.has(ns)) {
 				done.add(ns);
-				allSubNamespacesOf(ns).forEach(ns => todo.add(ns));
-				services.push(...allServicesOf(ns));
+				subNamespacesOf(ns).forEach(ns => todo.add(ns));
+				services.push(...servicesOf(ns));
 			}
 		});
 	}
@@ -82,13 +82,13 @@ export function allRecursiveServicesOf(namespace: Root): Service[] {
 	return services;
 }
 
-export function allSubNamespacesOf(namespace: NamespaceBase): NamespaceBase[] {
+export function subNamespacesOf(namespace: NamespaceBase): NamespaceBase[] {
 	return namespace.nestedArray.filter(
 		ns => ns.constructor === Namespace || ns.constructor === Type
 	) as NamespaceBase[];
 }
 
-export function allTypesOf(namespace: Namespace): Type[] {
+export function typesOf(namespace: Namespace): Type[] {
 	return namespace.nestedArray.filter(ns => ns instanceof Type) as Type[];
 }
 
@@ -96,7 +96,7 @@ export function enumsOf(namespace: NamespaceBase): Enum[] {
 	return namespace.nestedArray.filter(ns => ns instanceof Enum) as Enum[];
 }
 
-export function allServicesOf(namespace: NamespaceBase): Service[] {
+export function servicesOf(namespace: NamespaceBase): Service[] {
 	return namespace.nestedArray.filter(ns => ns instanceof Service) as Service[];
 }
 
@@ -115,8 +115,8 @@ export function parentChainOf(obj: ReflectionObject): ReflectionObject[] {
 	return parents;
 }
 
-export function allNamespaceImportDeclarations(root: Root, baseNs: Namespace): string[] {
-	return allRecursiveNamespacesOf(root)
+export function namespaceImportDeclarations(root: Root, baseNs: Namespace): string[] {
+	return recursiveNamespacesOf(root)
 		.map(ns => `import * as ${importReferenceFor(ns)} from '${importFileFor(ns, baseNs)}';`);
 }
 

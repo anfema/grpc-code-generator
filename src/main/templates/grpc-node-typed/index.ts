@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { Root, ReflectionObject, NamespaceBase, Namespace, Type, Service } from 'protobufjs'
-import { parentChainOf, allRecursiveNamespacesOf, fileNameForNamespace, allRecursiveServicesOf } from '../utils';
+import { parentChainOf, recursiveNamespacesOf, fileNameForNamespace, recursiveServicesOf } from '../utils';
 import { TemplateFunction, TemplateMap } from '../..';
 import grpc from './grpc';
 import namespace from './namespace';
@@ -12,11 +12,11 @@ export default function(templateMap: TemplateMap, root: Root): void {
 	templateMap
 		.addTemplate('grpc.d.ts', grpc(root));
 
-	allRecursiveNamespacesOf(root).forEach(ns => {
+	recursiveNamespacesOf(root).forEach(ns => {
 		templateMap.addTemplate(fileNameForNamespace(ns), namespace(ns, root))
 	});
 
-	allRecursiveServicesOf(root).forEach(service => {
+	recursiveServicesOf(root).forEach(service => {
 		templateMap.addTemplate(fileNameForService(service), serviceDeclaration(service, root))
 	});
 }
