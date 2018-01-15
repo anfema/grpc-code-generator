@@ -24,7 +24,6 @@
 	},
 	"devDependencies": {
 		"@types/node": "^8.0.50",
-		"@types/protobufjs": "^5.0.31",
 		"@types/uuid": "^3.4.3",
 		"@types/yargs": "^8.0.2",
 		"ava": "^0.23.0",
