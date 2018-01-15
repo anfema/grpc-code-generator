@@ -1,15 +1,14 @@
-import { Root, Namespace, Type, Service, Field, Method } from 'protobufjs'
+import { Root, Namespace, Type, Service, Field, Method, Enum } from 'protobufjs'
 import {
-	allRecursiveNamespacesOf, allServicesOf, allTypesOf, indent, allNamespaceImportDeclarations,
+	allRecursiveNamespacesOf, allServicesOf, allTypesOf, enumsOf, indent, allNamespaceImportDeclarations,
 	namespacedReferenceForType, banner
 } from '../utils';
 import { name } from '.';
 
 
 export default function(namespace: Namespace, root: Root): string {
-	const messageTypes = allTypesOf(namespace)
-		.map(ns => typeDeclaration(ns));
-
+	const messageTypes = allTypesOf(namespace).map(t => typeDeclaration(t));
+	const enums = enumsOf(namespace).map(e => enumDeclaration(e));
 
 	return (
 `${banner(name)}
@@ -17,25 +16,37 @@ import { Message, Long } from 'protobufjs';
 
 ${allNamespaceImportDeclarations(root, namespace).join("\n")}
 
-
-${messageTypes.join("\n\n")}`);
+${messageTypes.join("\n")}
+${enums.join("\n")}
+`);
 }
 
 function typeDeclaration(type: Type): string {
-	const fields = type.fieldsArray
-		.map(field => fieldDeclaration(field));
+	const fields = type.fieldsArray.map(field => fieldDeclaration(field));
 
 	return (
 `export interface ${type.name} {
 	${indent(fields.join("\n"), 1)}
-}`);
+}
+`);
 }
 
 function fieldDeclaration(field: Field): string {
 	const comment = field.comment ? `/** ${field.comment} */\n` : '';
 
+	return `${comment}${field.name}: ${typeForField(field)};`;
+}
+
+function enumDeclaration(enumeration: Enum): string {
+	const values = Object.keys(enumeration.values).map(key =>
+		`${key} = ${enumeration.values[key]},`
+	);
+
 	return (
-`${comment}${field.name}: ${typeForField(field)};`);
+`export const enum ${enumeration.name} {
+	${indent(values.join("\n"), 1)}
+}
+`);
 }
 
 function typeForField(field: Field): string {

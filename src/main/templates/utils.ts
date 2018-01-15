@@ -92,6 +92,10 @@ export function allTypesOf(namespace: Namespace): Type[] {
 	return namespace.nestedArray.filter(ns => ns instanceof Type) as Type[];
 }
 
+export function enumsOf(namespace: NamespaceBase): Enum[] {
+	return namespace.nestedArray.filter(ns => ns instanceof Enum) as Enum[];
+}
+
 export function allServicesOf(namespace: NamespaceBase): Service[] {
 	return namespace.nestedArray.filter(ns => ns instanceof Service) as Service[];
 }

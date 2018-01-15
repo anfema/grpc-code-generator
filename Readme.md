@@ -162,4 +162,3 @@ Development
 
 Todo
 ---
-* [ ] handle enums
