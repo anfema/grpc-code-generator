@@ -66,7 +66,7 @@ function typeForField(field: Field): string {
 		field.resolve();
 		//messageType | enumType
 		if (field.resolvedType) {
-			return `${field.resolvedType.name}${arraySignifier}`;
+			return `${namespacedReferenceForType(field.resolvedType)}${arraySignifier}`;
 		}
 		else {
 			throw new Error(`could not resolve type for field '${field.fullName}'`);
