@@ -14,7 +14,7 @@ import {
 	ServerUnaryCall, ServiceDefinition,
 	ServerReadableStream, ServerWriteableStream, ServerDuplexStream,
 	ClientReadableStream, ClientWritableStream, ClientDuplexStream,
-	sendUnaryData,
+	sendUnaryData, ChannelCredentials
 } from 'grpc';
 ${namespaceImportDeclarations(root, service).join("\n")}
 
@@ -37,11 +37,15 @@ function serviceClientDeclaration(service: Service): string {
 	const methods = service.methodsArray.map(method => clientMethodDeclaration(method as Method));
 
 	return (
-`export class Client extends GrpcClient {
-	static service: ServiceDefinition<Service>;
+`export interface ClientConstructor {
+	service: ServiceDefinition<Service>;
+	new(address: string, credentials: ChannelCredentials, options?: object): Client;
+}
 
+export interface Client extends GrpcClient {
 	${indent(methods.join("\n"), 1)}
-}`);
+}
+`);
 }
 
 function serverMethodDeclaration(method: Method): string {

@@ -42,7 +42,7 @@ function subNamespaceDeclaration(ns: Namespace, indentLevel: number): string {
 }
 
 function serviceDeclaration(service: Service): string {
-	return `${service.name}: typeof ${namespacedReferenceForService(service)}.Client;`
+	return `${service.name}: ${namespacedReferenceForService(service)}.ClientConstructor;`
 }
 
 function serviceImportDeclarations(root: Root, baseNs: Namespace): string[] {
