@@ -1,3 +1,0 @@
-[submodule "dependencies/grpc-node"]
-	path = dependencies/grpc-node
-	url = git@github.com:andrew8er/grpc-node.git

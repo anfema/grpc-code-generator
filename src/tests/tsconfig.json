@@ -2,8 +2,7 @@
 	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
 		"paths": {
-			"protobufjs": ["../node_modules/@types/protobufjs"],
-			"grpc": ["../dependencies/grpc-node/packages/grpc-native-core"]
+			"grpc": ["types/grpc"]
 		}
 	},
 	"include": [
