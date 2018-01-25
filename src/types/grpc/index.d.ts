@@ -9,7 +9,7 @@ declare module "grpc" {
    * @param options Options to apply to the loaded file
    * @return The resulting gRPC object.
    */
-  export function loadObject<T = GrpcObject>(value: object, options?: LoadObjectOptions): T;
+  export function loadObject<T = any>(value: object, options?: LoadObjectOptions): T;
 
   /**
    * Options for loading proto object as gRPC object
@@ -57,26 +57,13 @@ declare module "grpc" {
   }
 
   /**
-   * Map from `.proto` file.
-   * - Namespaces become maps from the names of their direct members to those member objects
-   * - Service definitions become client constructors for clients for that service. They also
-   *   have a service member that can be used for constructing servers.
-   * - Message definitions become Message constructors like those that ProtoBuf.js would create
-   * - Enum definitions become Enum objects like those that ProtoBuf.js would create
-   * - Anything else becomes the relevant reflection object that ProtoBuf.js would create
-   */
-  export interface GrpcObject {
-    [name: string]: GrpcObject | typeof Client | Message;
-  }
-
-  /**
    * Load a gRPC object from a .proto file.
    * @param filename The file to load
    * @param format The file format to expect. Defaults to 'proto'
    * @param options Options to apply to the loaded file
    * @return The resulting gRPC object
    */
-  export function load<T = GrpcObject>(filename: Filename, format?: "proto" | "json", options?: LoadOptions): T;
+  export function load<T = any>(filename: Filename, format?: "proto" | "json", options?: LoadOptions): T;
 
   /**
    * A filename
