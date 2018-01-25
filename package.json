@@ -7,7 +7,7 @@
 	"main": "dist/main/index.js",
 	"author": "André Wachter <a.wachter@anfe.ma>",
 	"scripts": {
-		"prepare": "npm run build",
+		"prepare": "npm run main.build",
 		"build": "npm run main.build; npm run tests.gen; npm run tests.build",
 		"dev": "npm run main.dev & npm run tests.dev & wait",
 		"clean": "rimraf dist/* src/tests/gen/*",
