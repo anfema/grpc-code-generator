@@ -7,7 +7,7 @@
 	"main": "dist/main/index.js",
 	"author": "André Wachter <a.wachter@anfe.ma>",
 	"scripts": {
-		"prepare": "npm run main.build",
+		"postinstall": "npm run main.build",
 		"build": "npm run main.build; npm run tests.gen; npm run tests.build",
 		"dev": "npm run main.dev & npm run tests.dev & wait",
 		"clean": "rimraf dist/* src/tests/gen/*",
@@ -23,18 +23,18 @@
 		"grpc-code-generator": "dist/main/main.js"
 	},
 	"devDependencies": {
-		"@types/node": "^8.0.50",
-		"@types/uuid": "^3.4.3",
-		"@types/yargs": "^8.0.2",
 		"ava": "^0.23.0",
 		"grpc": "^1.8.4",
 		"rimraf": "^2.6.2",
-		"typescript": "^2.6.1",
 		"uuid": "^3.1.0"
 	},
 	"dependencies": {
+		"@types/node": "^8.0.50",
+		"@types/uuid": "^3.4.3",
+		"@types/yargs": "^8.0.2",
 		"protobufjs": "~6.8.0",
-		"yargs": "^10.0.3"
+		"yargs": "^10.0.3",
+		"typescript": "^2.6.2"
 	},
 	"engines": {
 		"node": ">=8.0.0"
