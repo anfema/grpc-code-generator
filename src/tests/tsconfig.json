@@ -1,9 +1,6 @@
 {
 	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
-		"paths": {
-			"grpc": ["types/grpc"]
-		}
 	},
 	"include": [
 		"**/*.ts"
