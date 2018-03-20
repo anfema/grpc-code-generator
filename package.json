@@ -10,7 +10,8 @@
 		"postinstall": "npm run main.build",
 		"build": "npm run main.build; npm run tests.gen; npm run tests.build",
 		"dev": "npm run main.dev & npm run tests.dev & wait",
-		"clean": "rimraf dist/* src/tests/gen/*",
+		"clean": "del dist/* src/tests/gen/*",
+		"purge": "del node_modules",
 		"tests": "npm run main.build; npm run tests.gen; npm run tests.build; npm run tests.run",
 		"main.build": "tsc --project src/main",
 		"main.dev": "tsc --watch --project src/main",
@@ -24,8 +25,8 @@
 	},
 	"devDependencies": {
 		"ava": "^0.25.0",
+		"del-cli": "^1.1.0",
 		"grpc": "^1.9.1",
-		"rimraf": "^2.6.2",
 		"uuid": "^3.1.0"
 	},
 	"dependencies": {
@@ -33,8 +34,8 @@
 		"@types/uuid": "^3.4.3",
 		"@types/yargs": "^11.0.0",
 		"protobufjs": "~6.8.0",
-		"yargs": "^11.0.0",
-		"typescript": "^2.6.2"
+		"typescript": "^2.6.2",
+		"yargs": "^11.0.0"
 	},
 	"engines": {
 		"node": ">=8.0.0"
