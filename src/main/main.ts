@@ -2,86 +2,62 @@
 
 import * as path from 'path';
 import * as process from 'process';
-import * as fs from 'fs';
 import * as yargs from 'yargs';
-import * as util from 'util';
-import { TemplateMap, TemplateFunction, loadProto } from './';
 
-const stat = util.promisify(fs.stat);
+import { TemplateMap, TemplateFunction, loadProto } from './';
+import { Config, configFromArgs, loadConfig, mergeConfig, prepareConfig } from './config';
+import { tryResolveModule } from "./utils";
 
 const args = yargs
 	.usage('grpc-code-generator [options] <path/to/main.proto>')
 	.option('out', {
 		alias: 'o',
-		default: 'src-gen',
-		desc: 'Output directory of generated files'
+		desc: 'Output directory of generated files (default: "src-gen")'
 	})
 	.option('proto_path', {
 		alias: 'I',
-		default: [process.cwd()],
-		desc: 'Root path for resolving imports (may be specified more than once)'
+		desc: 'Root path for resolving imports (may be specified more than once, default: current workdir)'
 	})
 	.option('template', {
 		alias: 't',
-		default: 'grpc-node-typed',
-		desc: 'Template for code generation'
+		desc: 'Template for code generation (default: "grpc-node-typed")'
+	})
+	.option('config', {
+		alias: 'c',
+		desc: 'JSON config file'
 	})
 	.help()
 	.version()
 	.argv;
 
+const defaultConfig: Config = {
+	out: 'src-gen',
+	template: 'grpc-node-typed',
+	proto_paths: [ process.cwd() ],
+	files: [],
+};
+
 (async function() {
 	try {
-		const templateMap = new TemplateMap();
+		const argConfig = configFromArgs(args);
+		const fileConfig = loadConfig(args);
 
-		const templatePath =
-			tryResolveModule(path.join(process.cwd(), args['t'])) ||
-			tryResolveModule(path.join(__dirname, '..', 'main', 'templates', args['t']));
+		const config = await prepareConfig((fileConfig
+			? mergeConfig(argConfig, mergeConfig(fileConfig, defaultConfig))
+			: mergeConfig(argConfig, defaultConfig)) as Config
+		);
 
-		if (templatePath) {
-			const template = require(templatePath).default as TemplateFunction;
+		const root = await loadProto(config.files, config.proto_paths);
+		const template = require(config.template).default as TemplateFunction;
 
-			// ensure paths are absolute
-			const protoPaths = args._.map(p => path.isAbsolute(p) ? p : path.resolve(p));
-			const protoPathStats = await Promise.all(protoPaths.map(p => stat(p)))
+		await template(root).writeFiles(path.join(process.cwd(), config.out));
 
-			// only use files
-			const protoFiles = protoPaths.filter((p, i) => protoPathStats[i].isFile());
+		process.exit(0);
 
-			const rootPaths = (typeof args['I'] === 'string'
-				? [args['I']]
-				: args['I'])
-					.map((p: string) => path.isAbsolute(p) ? p : path.resolve(p));
-
-			const root = await loadProto(protoFiles, rootPaths);
-
-			template(templateMap, root);
-
-			await templateMap.writeFiles(path.join(process.cwd(), args['o']));
-			process.exit(0);
-		}
-		else {
-			console.log(`Error: Template module '${args['t']}' not found.`);
-			process.exit(1);
-		}
 	}
 	catch (err) {
-		console.error(err);
+		console.error(err.message);
 		process.exit(1);
 	}
 })()
-
-function tryResolveModule(path: string): string | undefined {
-	try {
-		return require.resolve(path);
-	}
-	catch (error) {
-		if (error.code === 'MODULE_NOT_FOUND') {
-			return;
-		}
-		else {
-			throw error;
-		}
-	}
-}
 

@@ -5,7 +5,7 @@ import { promisify } from 'util';
 import { Root } from 'protobufjs';
 
 // export { TemplateMap };
-export type TemplateFunction = (templateMap: TemplateMap, root: Root) => void;
+export type TemplateFunction = (root: Root) => TemplateMap;
 
 export class TemplateMap {
 	private _templates: Map<string, string> = new Map();

@@ -13,9 +13,10 @@ import serviceDeclaration from './service';
 
 export const name = 'grpc-node-typed';
 
-export default function(templateMap: TemplateMap, root: Root): void {
-	templateMap
-		.addTemplate('grpc.d.ts', grpc(root));
+const template: TemplateFunction = (root: Root) => {
+	const templateMap = new TemplateMap();
+
+	templateMap.addTemplate('grpc.d.ts', grpc(root));
 
 	recursiveNamespacesOf(root).forEach(ns => {
 		if (hasTypeOrEnum(ns)) {
@@ -26,7 +27,11 @@ export default function(templateMap: TemplateMap, root: Root): void {
 	recursiveServicesOf(root).forEach(service => {
 		templateMap.addTemplate(fileNameForService(service), serviceDeclaration(service, root))
 	});
+
+	return templateMap;
 }
+
+export default template;
 
 function fileNameForService(service: Service): string {
 	const parents = [...parentChainOf(service), service]
