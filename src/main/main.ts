@@ -2,9 +2,12 @@
 
 import * as path from 'path';
 import * as process from 'process';
+import * as fs from 'fs';
 import * as yargs from 'yargs';
+import * as util from 'util';
 import { TemplateMap, TemplateFunction, loadProto } from './';
 
+const stat = util.promisify(fs.stat);
 
 const args = yargs
 	.usage('grpc-code-generator [options] <path/to/main.proto>')
@@ -31,21 +34,26 @@ const args = yargs
 	try {
 		const templateMap = new TemplateMap();
 
-		// @ts-ignore
 		const templatePath =
 			tryResolveModule(path.join(process.cwd(), args['t'])) ||
 			tryResolveModule(path.join(__dirname, '..', 'main', 'templates', args['t']));
 
 		if (templatePath) {
 			const template = require(templatePath).default as TemplateFunction;
+
 			// ensure paths are absolute
-			const protoPaths = args._.map((p: string) => path.isAbsolute(p) ? p : path.resolve(p))
+			const protoPaths = args._.map(p => path.isAbsolute(p) ? p : path.resolve(p));
+			const protoPathStats = await Promise.all(protoPaths.map(p => stat(p)))
+
+			// only use files
+			const protoFiles = protoPaths.filter((p, i) => protoPathStats[i].isFile());
+
 			const rootPaths = (typeof args['I'] === 'string'
 				? [args['I']]
 				: args['I'])
 					.map((p: string) => path.isAbsolute(p) ? p : path.resolve(p));
 
-			const root = await loadProto(protoPaths, rootPaths);
+			const root = await loadProto(protoFiles, rootPaths);
 
 			template(templateMap, root);
 
