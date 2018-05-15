@@ -10,11 +10,11 @@ export default function(service: Service, root: Root): string {
 `${banner(name)}
 import { Message, Long } from 'protobufjs';
 import {
-	Client as GrpcClient,
+	Client as GrpcClient, Metadata, CallOptions, ChannelCredentials,
 	ServerUnaryCall, ServiceDefinition,
 	ServerReadableStream, ServerWriteableStream, ServerDuplexStream,
 	ClientReadableStream, ClientWritableStream, ClientDuplexStream,
-	sendUnaryData, ChannelCredentials
+	sendUnaryData, requestCallback
 } from 'grpc';
 ${namespaceImportDeclarations(root, service).join("\n")}
 
@@ -89,16 +89,16 @@ function clientMethodDeclaration(method: Method): string {
 			const responseType = namespacedReferenceForType(method.resolvedResponseType);
 
 			if (method.responseStream && method.requestStream) {
-				return `${method.name}(): ClientDuplexStream<${requestType}, ${responseType}>;`
+				return `${method.name}(metadata?: Metadata | null, options?: CallOptions | null): ClientDuplexStream<${requestType}, ${responseType}>;`
 			}
 			else if (method.responseStream) {
-				return `${method.name}(arg: ${requestType}): ClientReadableStream<${responseType}>;`
+				return `${method.name}(arg: ${requestType}, metadata?: Metadata | null, options?: CallOptions | null): ClientReadableStream<${responseType}>;`
 			}
 			else if (method.requestStream) {
-				return `${method.name}(callback: requestCallback<${responseType}>): ClientWritableStream<${requestType}>;`
+				return `${method.name}(metadata: Metadata | null, options: CallOptions | null, callback: requestCallback<${responseType}>): ClientWritableStream<${requestType}>;`
 			}
 			else {
-				return `${method.name}(arg: ${requestType}, callback: requestCallback<${responseType}>): void;`
+				return `${method.name}(arg: ${requestType}, metadata: Metadata | null, options: CallOptions | null, callback: requestCallback<${responseType}>): void;`
 			}
 		}
 		else {

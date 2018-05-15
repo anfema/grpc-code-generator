@@ -13,7 +13,7 @@ const client = createClient(port);
 
 test('Stream Request | Normal', async (t) => {
 	return callbackAsPromise(cb => {
-		const requestStream = client.streamRequest(cb);
+		const requestStream = client.streamRequest(null, null, cb);
 		for (let i = 0; i < 10; i++) {
 			requestStream.write({
 				id: '',
@@ -29,7 +29,7 @@ test('Stream Request | Slow (short timeout should fail)', (t) => {
 	return t.throws(Promise.race([
 		timeout(500),
 		callbackAsPromise(cb => {
-			const requestStream = client.streamRequest(cb);
+			const requestStream = client.streamRequest(null, null, cb);
 			for (let i = 0; i < 10; i++) {
 				requestStream.write({
 					id: '',
@@ -46,7 +46,7 @@ test('Stream request | Slow (long timeout should not fail)', (t) => {
 	return Promise.race([
 		timeout(1500),
 		callbackAsPromise(cb => {
-			const requestStream = client.streamRequest(cb);
+			const requestStream = client.streamRequest(null, null, cb);
 			for (let i = 0; i < 10; i++) {
 				requestStream.write({
 					id: '',
@@ -61,7 +61,7 @@ test('Stream request | Slow (long timeout should not fail)', (t) => {
 
 test('Stream request | Error (should fail)', (t) => {
 	return t.throws(callbackAsPromise(cb => {
-		const requestStream = client.streamRequest(cb);
+		const requestStream = client.streamRequest(null, null, cb);
 		for (let i = 0; i < 10; i++) {
 			requestStream.write({
 				id: '',
@@ -80,7 +80,7 @@ test('Stream request | Retry (retry 2 times, should fail)', async (t) => {
 	for (let i = 0; i < 2; i++) {
 		try {
 			await callbackAsPromise(cb => {
-				const requestStream = client.streamRequest(cb);
+				const requestStream = client.streamRequest(null, null, cb);
 				requestStream.write({
 					id: '',
 					mode: 'retry',
@@ -103,7 +103,7 @@ test('Stream request | Retry request(retry 3 times, should not fail)', async (t)
 	for (let i = 0; i < 3; i++) {
 		try {
 			await callbackAsPromise(cb => {
-				const requestStream = client.streamRequest(cb);
+				const requestStream = client.streamRequest(null, null, cb);
 				requestStream.write({
 					id: id,
 					mode: 'retry',

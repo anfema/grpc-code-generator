@@ -18,7 +18,7 @@ test('Unary call | normal', (t) => {
 			id: '',
 			mode: 'normal',
 			count: 0,
-		}, cb)
+		}, null, null, cb)
 	});
 
 });
@@ -30,7 +30,7 @@ test('Unary call | slow (short timeout should fail)', (t) => {
 			id: '',
 			mode: 'slow',
 			count: 0,
-		}, cb) })
+		}, null, null, cb) })
 	]));
 });
 
@@ -41,7 +41,7 @@ test('Unary call | slow (long timeout should not fail)', (t) => {
 			id: '',
 			mode: 'slow',
 			count: 0,
-		}, cb) })
+		}, null, null, cb) })
 	]);
 });
 
@@ -51,7 +51,7 @@ test('Unary call | error (should fail)', (t) => {
 			id: '',
 			mode: 'error',
 			count: 0,
-		}, cb)
+		}, null, null, cb)
 	}));
 });
 
@@ -66,7 +66,7 @@ test('Unary call | retry (retry 2 times, should fail)', async (t) => {
 				id: id,
 				mode: 'retry',
 				count: 0,
-			}, cb));
+			}, null, null, cb));
 			t.fail();
 		}
 		catch (err) {
@@ -86,7 +86,7 @@ test('Unary call | retry (retry 3 times, should not fail)', async (t) => {
 				id: id,
 				mode: 'retry',
 				count: 0,
-			}, cb));
+			}, null, null, cb));
 
 			if (i === 2) {
 				t.pass();
