@@ -12,7 +12,8 @@ export default function(namespace: Namespace, root: Root): string {
 
 	return (
 `${banner(name)}
-import { Message, Long } from 'protobufjs';
+import { Message } from 'protobufjs';
+import Long = require('long');
 
 ${namespaceImportDeclarations(root, namespace).join("\n")}
 
