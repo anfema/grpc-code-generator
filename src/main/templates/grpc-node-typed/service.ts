@@ -102,7 +102,7 @@ function clientMethodDeclaration(method: Method): string {
 			}
 		}
 		else {
-			throw undefined;
+			throw new Error();
 		}
 	}
 	catch (err) {
