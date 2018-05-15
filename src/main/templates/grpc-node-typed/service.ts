@@ -95,10 +95,10 @@ function clientMethodDeclaration(method: Method): string {
 				return `${method.name}(arg: ${requestType}): ClientReadableStream<${responseType}>;`
 			}
 			else if (method.requestStream) {
-				return `${method.name}(callback: sendUnaryData<${responseType}>): ClientWritableStream<${requestType}>;`
+				return `${method.name}(callback: requestCallback<${responseType}>): ClientWritableStream<${requestType}>;`
 			}
 			else {
-				return `${method.name}(arg: ${requestType}, callback: sendUnaryData<${responseType}>): void;`
+				return `${method.name}(arg: ${requestType}, callback: requestCallback<${responseType}>): void;`
 			}
 		}
 		else {
