@@ -34,8 +34,9 @@ function typeDeclaration(type: Type): string {
 
 function fieldDeclaration(field: Field): string {
 	const comment = field.comment ? `/** ${field.comment} */\n` : '';
+	const optionalSignifier = field.partOf != undefined ? '?' : '';
 
-	return `${comment}${field.name}: ${typeForField(field)};`;
+	return `${comment}${field.name}${optionalSignifier}: ${typeForField(field)};`;
 }
 
 function enumDeclaration(enumeration: Enum): string {
