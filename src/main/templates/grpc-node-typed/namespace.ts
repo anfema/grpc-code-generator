@@ -14,6 +14,7 @@ export default function(namespace: Namespace, root: Root): string {
 `${banner(name)}
 import { Message } from 'protobufjs';
 import Long = require('long');
+import byteBuffer = require('bytebuffer');
 
 ${namespaceImportDeclarations(root, namespace).join("\n")}
 
@@ -74,7 +75,7 @@ function typeForField(field: Field): string {
 	case 'string':
 		return `string${arraySignifier}`;
 	case 'bytes':
-		return `Buffer${arraySignifier}`; // TODO Uint8Array
+		return `Uint8Array${arraySignifier}`;
 	default:
 		field.resolve();
 		//messageType | enumType
