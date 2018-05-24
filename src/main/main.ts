@@ -33,7 +33,7 @@ const args = yargs
 
 const defaultConfig: Config = {
 	out: 'src-gen',
-	templates: ['grpc-node'],
+	templates: ['grpc-node', 'protobufjs6'],
 	proto_paths: [ process.cwd() ],
 	files: [],
 };

@@ -1,6 +1,9 @@
-import * as path from 'path';
 import * as fs from 'fs';
-import { Root, IParseOptions } from 'protobufjs';
+import * as path from 'path';
+import { IParseOptions, Namespace, Root, Type } from 'protobufjs';
+import { namespacesOf, typesOf } from './templates/utils';
+
+// TODO this should go into its own package
 
 /**
  * Load .proto files with a set of root paths, with the same import resolution logic like 'protoc'
@@ -13,10 +16,11 @@ import { Root, IParseOptions } from 'protobufjs';
  * @param rootPaths An array of paths used as import root. If the a path is not absolute, it will be
  * 		interpreted as relative to the current working directory.
  * @param options Parse options from protobufjs load() method.
+ *
  */
-export default async function(
-	protoPaths: string[],
+export function loadProtoFiles(
 	rootPaths: string[],
+	protoPaths: string[],
 	options?: IParseOptions
 ): Promise<Root> {
 	const root = new Root();
@@ -25,6 +29,12 @@ export default async function(
 	root.resolvePath = (origin: string, target: string) => resolvePath(roots, origin, target);
 
 	return root.load(protoPaths, options);
+}
+
+export function createMessageTypes<T>(root: Root): T {
+	const holder = {};
+	attachMessageTypesRecursive(holder, root);
+	return holder as T;
 }
 
 function resolvePath(rootPaths: string[], origin: string, target: string): string {
@@ -56,3 +66,22 @@ function exists(path: string): boolean {
 	}
 }
 
+function attachMessageTypesRecursive(messageTypes: any, namespace: Namespace): void {
+	const types = typesOf(namespace);
+
+	namespacesOf(namespace).forEach(ns => {
+		const namespaceHolder: any = {};
+		const type = types.find(type => type.name === ns.name)
+		if (type) {
+			namespaceHolder[ '_Message' ] = type;
+		}
+
+		messageTypes[ ns.name ] = namespaceHolder;
+
+		if (ns instanceof Type) {
+			namespace
+		}
+
+		attachMessageTypesRecursive(namespaceHolder, ns);
+	});
+}
