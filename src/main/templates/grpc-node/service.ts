@@ -8,7 +8,7 @@ import { name } from '.';
 export default function(service: Service, root: Root): string {
 	return (
 `${banner(name)}
-import { Message, Long } from 'protobufjs';
+import Long = require('long');
 import {
 	Client as GrpcClient, Metadata, CallOptions, ChannelCredentials,
 	ServerUnaryCall, ServiceDefinition,

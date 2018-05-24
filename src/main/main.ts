@@ -20,7 +20,7 @@ const args = yargs
 	})
 	.option('template', {
 		alias: 't',
-		desc: 'Template for code generation (default: "grpc-node-typed")'
+		desc: 'Template for code generation (default: "grpc-node")'
 	})
 	.option('config', {
 		alias: 'c',
@@ -32,7 +32,7 @@ const args = yargs
 
 const defaultConfig: Config = {
 	out: 'src-gen',
-	template: 'grpc-node-typed',
+	template: 'grpc-node',
 	proto_paths: [ process.cwd() ],
 	files: [],
 };

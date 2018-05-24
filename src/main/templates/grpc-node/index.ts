@@ -7,16 +7,16 @@ import {
     hasTypeOrEnum
 } from '../utils';
 import { TemplateFunction, TemplateMap } from '../..';
-import grpc from './grpc';
+import grpcNode from './grpc-node';
 import namespace from './namespace';
 import serviceDeclaration from './service';
 
-export const name = 'grpc-node-typed';
+export const name = 'grpc-node';
 
 const template: TemplateFunction = (root: Root) => {
 	const templateMap = new TemplateMap();
 
-	templateMap.addTemplate('grpc.d.ts', grpc(root));
+	templateMap.addTemplate('grpc-node.d.ts', grpcNode(root));
 
 	recursiveNamespacesOf(root).forEach(ns => {
 		if (hasTypeOrEnum(ns)) {

@@ -12,9 +12,7 @@ export default function(namespace: Namespace, root: Root): string {
 
 	return (
 `${banner(name)}
-import { Message } from 'protobufjs';
 import Long = require('long');
-import byteBuffer = require('bytebuffer');
 
 ${namespaceImportDeclarations(root, namespace).join("\n")}
 

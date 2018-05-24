@@ -14,7 +14,6 @@ import { name } from '.';
 export default function (root: Root): string {
 	return (
 `${banner(name)}
-import { Message } from 'protobufjs';
 ${serviceImportDeclarations(root, root).join("\n")}
 
 export default interface Grpc {
