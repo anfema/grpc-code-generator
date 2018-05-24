@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as process from 'process';
 import * as yargs from 'yargs';
 
-import { TemplateMap, TemplateFunction, loadProto } from './';
+import { Context, TemplateFunction, loadProto } from './';
 import { Config, configFromArgs, loadConfig, mergeConfig, prepareConfig } from './config';
 import { tryResolveModule } from "./utils";
 
@@ -18,9 +18,10 @@ const args = yargs
 		alias: 'I',
 		desc: 'Root path for resolving imports (may be specified more than once, default: current workdir)'
 	})
-	.option('template', {
+	.option('templates', {
 		alias: 't',
-		desc: 'Template for code generation (default: "grpc-node")'
+		array: true,
+		desc: 'Templates for code generation (default: "grpc-node" and "protobufjs6")'
 	})
 	.option('config', {
 		alias: 'c',
@@ -32,7 +33,7 @@ const args = yargs
 
 const defaultConfig: Config = {
 	out: 'src-gen',
-	template: 'grpc-node',
+	templates: ['grpc-node'],
 	proto_paths: [ process.cwd() ],
 	files: [],
 };
@@ -48,12 +49,15 @@ const defaultConfig: Config = {
 		);
 
 		const root = await loadProto(config.files, config.proto_paths);
-		const template = require(config.template).default as TemplateFunction;
+		const context = new Context(root);
 
-		await template(root).writeFiles(path.join(process.cwd(), config.out));
+		for (let templatePath of config.templates) {
+			const templateFunction = require(templatePath).default as TemplateFunction;
+			templateFunction(context)
+		}
 
+		await context.writeFiles(path.join(process.cwd(), config.out));
 		process.exit(0);
-
 	}
 	catch (err) {
 		console.error(err.message);

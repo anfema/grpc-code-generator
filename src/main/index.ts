@@ -5,10 +5,12 @@ import { promisify } from 'util';
 import { Root } from 'protobufjs';
 
 // export { TemplateMap };
-export type TemplateFunction = (root: Root) => TemplateMap;
+export type TemplateFunction = (context: Context) => void;
 
-export class TemplateMap {
+export class Context {
 	private _templates: Map<string, string> = new Map();
+
+	constructor(public readonly root: Root) {}
 
 	addTemplate(path: string, contents: string): this {
 		if (!this._templates.has(path)) {

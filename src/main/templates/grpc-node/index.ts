@@ -6,29 +6,25 @@ import {
 	fileNameForNamespace,
     hasTypeOrEnum
 } from '../utils';
-import { TemplateFunction, TemplateMap } from '../..';
+import { TemplateFunction, Context } from '../..';
 import grpcNode from './grpc-node';
 import namespace from './namespace';
 import serviceDeclaration from './service';
 
 export const name = 'grpc-node';
 
-const template: TemplateFunction = (root: Root) => {
-	const templateMap = new TemplateMap();
+const template: TemplateFunction = (context: Context) => {
+	context.addTemplate('grpc-node.d.ts', grpcNode(context.root));
 
-	templateMap.addTemplate('grpc-node.d.ts', grpcNode(root));
-
-	recursiveNamespacesOf(root).forEach(ns => {
+	recursiveNamespacesOf(context.root).forEach(ns => {
 		if (hasTypeOrEnum(ns)) {
-			templateMap.addTemplate(fileNameForNamespace(ns), namespace(ns, root))
+			context.addTemplate(fileNameForNamespace(ns), namespace(ns, context.root))
 		}
 	});
 
-	recursiveServicesOf(root).forEach(service => {
-		templateMap.addTemplate(fileNameForService(service), serviceDeclaration(service, root))
+	recursiveServicesOf(context.root).forEach(service => {
+		context.addTemplate(fileNameForService(service), serviceDeclaration(service, context.root))
 	});
-
-	return templateMap;
 }
 
 export default template;
