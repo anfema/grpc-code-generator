@@ -9,7 +9,8 @@ import { Message, Type, Constructor, Writer, Reader, IConversionOptions } from '
 
 ${namespaceImportDeclarations(root, root).join("\n")}
 
-interface MessageCtor<T extends object> {
+/** The static part of the abstract Message type, slightly modified */
+export interface MessageType<T extends object> {
 	new (properties?: Partial<T>): Message<T>;
 	readonly $type: Type;
 	create(properties?: Partial<T>): Message<T>;
@@ -31,7 +32,7 @@ export default interface ProtobufJs6 {
 function namespaceDeclarations(namespace: NamespaceBase, indentLevel: number = 0): string {
 	const messageDeclaration = namespace instanceof Type
 	// <${namespacedReferenceForType(namespace)}>
-		? `_Message: MessageCtor<${namespacedReferenceForType(namespace)}>;`
+		? `_Message: MessageType<${namespacedReferenceForType(namespace)}>;`
 		: '';
 
 	const subNamespaces = namespacesOf(namespace)
