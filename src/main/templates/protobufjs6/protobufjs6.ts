@@ -9,18 +9,8 @@ import { Message, Type, Constructor, Writer, Reader, IConversionOptions } from '
 
 ${namespaceImportDeclarations(root, root).join("\n")}
 
-/** The static part of the abstract Message type, slightly modified */
-export interface MessageType<T extends object> {
-	new (properties?: Partial<T>): Message<T>;
-	readonly $type: Type;
-	create(properties?: Partial<T>): Message<T>;
-	encode(message: (T | Partial<T>), writer?: Writer): Writer;
-	encodeDelimited(message: (T | Partial<T>), writer?: Writer): Writer;
-	decode(reader: (Reader | Uint8Array)): T;
-	decodeDelimited(reader: (Reader | Uint8Array)): T;
-	verify(message: Partial<T>): (string | null);
-	fromObject(object: Partial<T>): T;
-	toObject(message: T, options?: IConversionOptions): Partial<T>;
+/** Extend the protobufjs base type 'Type' to include a generic type parameter 'T', to help type inference. */
+export interface TypedType<T extends object> extends Type {
 }
 
 export default interface ProtobufJs6 {
@@ -32,7 +22,7 @@ export default interface ProtobufJs6 {
 function namespaceDeclarations(namespace: NamespaceBase, indentLevel: number = 0): string {
 	const messageDeclaration = namespace instanceof Type
 	// <${namespacedReferenceForType(namespace)}>
-		? `_Message: MessageType<${namespacedReferenceForType(namespace)}>;`
+		? `_Message: TypedType<${namespacedReferenceForType(namespace)}>;`
 		: '';
 
 	const subNamespaces = namespacesOf(namespace)
