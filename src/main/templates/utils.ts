@@ -26,7 +26,7 @@ export function fileNameForNamespace(namespace: Namespace): string {
 		.slice(1) // omit the root namespace
 		.map(p => p.name);
 
-	return path.join(...parents, 'index.d.ts');
+	return path.join(...parents, 'index.ts');
 }
 
 export function indent(value: string, level: number, indenter: string = "\t"): string {

@@ -8,7 +8,7 @@ import serviceDeclaration from './service';
 export const name = 'grpc-node';
 
 const template: TemplateFunction = (context: Context) => {
-	context.addTemplate('grpc-node.d.ts', grpcNode(context.root));
+	context.addTemplate('grpc-node.ts', grpcNode(context.root));
 
 	recursiveServicesOf(context.root).forEach(service => {
 		context.addTemplate(fileNameForService(service), serviceDeclaration(service, context.root))
@@ -22,5 +22,5 @@ function fileNameForService(service: Service): string {
 		.slice(1) // omit the root namespace
 		.map(p => p.name);
 
-	return path.join(...parents, 'grpc-node.d.ts');
+	return path.join(...parents, 'grpc-node.ts');
 }
