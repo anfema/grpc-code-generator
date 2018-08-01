@@ -6,7 +6,6 @@ import * as yargs from 'yargs';
 
 import { Context, TemplateFunction, loadProto } from './';
 import { Config, configFromArgs, loadConfig, mergeConfig, prepareConfig } from './config';
-import { tryResolveModule } from "./utils";
 
 const args = yargs
 	.usage('grpc-code-generator [options] <path/to/main.proto>')
