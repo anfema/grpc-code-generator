@@ -1,18 +1,14 @@
 import test from 'ava';
-import { setTimeout } from 'timers';
-import { Readable } from 'stream';
 import { v4 as uuid } from 'uuid';
-import { Server, ServerCredentials } from 'grpc';
 import { createClient } from './client';
 import { createServer } from './server';
-import { grpc } from './proto';
-import { callbackAsPromise, timeout, readStreamAsPromise } from './utils';
+import { readStreamAsPromise, timeout } from './utils';
 
-
-const port = createServer();
-const client = createClient(port);
 
 test('Stream response | Normal', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	const response = await readStreamAsPromise(
 		client.streamResponse({
 			id: '',
@@ -24,7 +20,10 @@ test('Stream response | Normal', async (t) => {
 	t.is(response.length, 4);
 });
 
-test('Stream response | Slow (short timeout should fail)', (t) => {
+test('Stream response | Slow (short timeout should fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	return t.throws(Promise.race([
 		timeout(500),
 		readStreamAsPromise(
@@ -37,7 +36,10 @@ test('Stream response | Slow (short timeout should fail)', (t) => {
 	]));
 });
 
-test('Stream response | Slow (long timeout should not fail)', (t) => {
+test('Stream response | Slow (long timeout should not fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	return Promise.race([
 		timeout(1500),
 		readStreamAsPromise(
@@ -50,7 +52,10 @@ test('Stream response | Slow (long timeout should not fail)', (t) => {
 	]);
 });
 
-test('Stream response | Error (should fail)', (t) => {
+test('Stream response | Error (should fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	return t.throws(readStreamAsPromise(
 		client.streamResponse({
 			id: '',
@@ -61,6 +66,9 @@ test('Stream response | Error (should fail)', (t) => {
 });
 
 test('Stream response | Retry (retry 2 times, should fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	t.plan(2);
 	const id = uuid();
 
@@ -81,6 +89,9 @@ test('Stream response | Retry (retry 2 times, should fail)', async (t) => {
 });
 
 test('Stream response | Retry (retry 3 times, should not fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	t.plan(3);
 	const id = uuid();
 

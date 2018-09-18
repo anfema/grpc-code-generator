@@ -1,8 +1,8 @@
-import * as path from 'path';
-import { load, credentials } from 'grpc';
+import { credentials } from 'grpc';
 import { Client } from './gen/TestService/grpc-node';
-import { grpc } from './proto';
+import { grpcServices } from './proto';
 
-export function createClient(port: number): Client {
+export async function createClient(port: number): Promise<Client> {
+	const grpc = await grpcServices();
 	return new grpc.TestService(`0.0.0.0:${port}`, credentials.createInsecure())
 }

@@ -1,18 +1,13 @@
-import { setTimeout } from 'timers';
-import { promisify } from 'util';
-import { v4 as uuid } from 'uuid';
 import test from 'ava';
-import { Server, ServerCredentials } from 'grpc';
+import { v4 as uuid } from 'uuid';
 import { createClient } from './client';
 import { createServer } from './server';
-import { grpc } from './proto';
 import { callbackAsPromise, timeout } from './utils';
 
+test('Unary call | normal', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
 
-const port = createServer();
-const client = createClient(port);
-
-test('Unary call | normal', (t) => {
 	return callbackAsPromise(cb => {
 		client.unaryCall({
 			id: '',
@@ -23,7 +18,10 @@ test('Unary call | normal', (t) => {
 
 });
 
-test('Unary call | slow (short timeout should fail)', (t) => {
+test('Unary call | slow (short timeout should fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	return t.throws(Promise.race([
 		timeout(500),
 		callbackAsPromise(cb => { client.unaryCall({
@@ -34,7 +32,10 @@ test('Unary call | slow (short timeout should fail)', (t) => {
 	]));
 });
 
-test('Unary call | slow (long timeout should not fail)', (t) => {
+test('Unary call | slow (long timeout should not fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	return Promise.race([
 		timeout(1500),
 		callbackAsPromise(cb => { client.unaryCall({
@@ -45,7 +46,10 @@ test('Unary call | slow (long timeout should not fail)', (t) => {
 	]);
 });
 
-test('Unary call | error (should fail)', (t) => {
+test('Unary call | error (should fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	return t.throws(callbackAsPromise(cb => {
 		client.unaryCall({
 			id: '',
@@ -56,6 +60,9 @@ test('Unary call | error (should fail)', (t) => {
 });
 
 test('Unary call | retry (retry 2 times, should fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	t.plan(2);
 
 	const id = uuid();
@@ -76,6 +83,9 @@ test('Unary call | retry (retry 2 times, should fail)', async (t) => {
 });
 
 test('Unary call | retry (retry 3 times, should not fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	t.plan(3);
 
 	const id = uuid();

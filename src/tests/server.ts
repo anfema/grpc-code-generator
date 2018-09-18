@@ -1,15 +1,8 @@
-import * as process from 'process';
-import {
-	Server, ServerCredentials,
-	ServerUnaryCall, ServerWriteableStream, ServerReadableStream, ServerDuplexStream,
-	sendUnaryData
-} from 'grpc';
+import { sendUnaryData, Server, ServerCredentials, ServerDuplexStream, ServerReadableStream, ServerUnaryCall, ServerWriteableStream } from 'grpc';
 import { Request, Response } from './gen';
-import { Service as TestService} from './gen/TestService/grpc-node';
-import { sleep } from './utils';
+import { Service as TestService } from './gen/TestService/grpc-node';
+import { grpcServices } from './proto';
 import { getState } from './state';
-import { grpc } from './proto';
-import { Buffer } from 'buffer';
 
 const defaultResponse: Response = {
 	id: '',
@@ -184,9 +177,9 @@ class TestServiceHandler implements TestService {
 	}
 }
 
-export function createServer(): number {
+export async function createServer(): Promise<number> {
 	const port = Math.round(Math.random() * 20000 + 10000);
-
+	const grpc = await grpcServices();
 	const server = new Server();
 
 	server.addService(grpc.TestService.service, new TestServiceHandler());

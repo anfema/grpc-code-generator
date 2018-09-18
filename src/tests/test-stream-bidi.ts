@@ -1,17 +1,13 @@
 import test from 'ava';
-import { setTimeout } from 'timers';
 import { v4 as uuid } from 'uuid';
-import { Server, ServerCredentials } from 'grpc';
 import { createClient } from './client';
 import { createServer } from './server';
-import { grpc } from './proto';
-import { callbackAsPromise, timeout, readStreamAsPromise } from './utils';
-
-
-const port = createServer();
-const client = createClient(port);
+import { readStreamAsPromise, timeout } from './utils';
 
 test('BiDi response | Normal', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
@@ -27,7 +23,10 @@ test('BiDi response | Normal', async (t) => {
 
 });
 
-test('Bidi response | Slow (short timeout should fail)', (t) => {
+test('Bidi response | Slow (short timeout should fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
@@ -45,7 +44,10 @@ test('Bidi response | Slow (short timeout should fail)', (t) => {
 	]));
 });
 
-test('BiDi response | Slow (long timeout should not fail)', (t) => {
+test('BiDi response | Slow (long timeout should not fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
@@ -63,7 +65,10 @@ test('BiDi response | Slow (long timeout should not fail)', (t) => {
 	]);
 });
 
-test('BiDi response | Error (should fail)', (t) => {
+test('BiDi response | Error (should fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
@@ -79,6 +84,9 @@ test('BiDi response | Error (should fail)', (t) => {
 });
 
 test('BiDi response | Retry (retry 2 times, should fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	t.plan(2);
 
 	const id = uuid();
@@ -104,6 +112,9 @@ test('BiDi response | Retry (retry 2 times, should fail)', async (t) => {
 });
 
 test('Stream response | Retry request(retry 3 times, should not fail)', async (t) => {
+	const port = await createServer();
+	const client = await createClient(port);
+
 	t.plan(3);
 
 	const id = uuid();

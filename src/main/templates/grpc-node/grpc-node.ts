@@ -14,9 +14,10 @@ import { name } from '.';
 export default function (root: Root): string {
 	return (
 `${banner(name)}
+import { GrpcObject } from 'grpc';
 ${serviceImportDeclarations(root, root).join("\n")}
 
-export default interface Grpc {
+export default interface Grpc extends GrpcObject {
 	${indent(namespaceDeclarations(root), 1)}
 }
 `);
