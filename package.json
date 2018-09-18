@@ -18,7 +18,7 @@
 		"tests.gen": "node dist/main/main.js -o src/tests/gen src/tests/proto/test.proto",
 		"tests.build": "tsc --project src/tests",
 		"tests.dev": "tsc --watch --project src/tests",
-		"tests.run": "ava"
+		"tests.run": "ava --verbose"
 	},
 	"bin": {
 		"grpc-code-generator": "dist/main/main.js"
