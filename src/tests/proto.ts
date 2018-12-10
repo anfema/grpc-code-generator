@@ -9,6 +9,8 @@ const protoPath = path.join(process.cwd(), 'src', 'tests', 'proto', 'test.proto'
 let reflectionRoot: Root;
 
 export async function grpcServices(): Promise<Description> {
-	return createGrpcServices(reflectionRoot || await parseProtoFiles([rootPath], [protoPath]));
+	reflectionRoot = reflectionRoot || await parseProtoFiles([rootPath], [protoPath]);
+
+	return createGrpcServices<Description>(reflectionRoot);
 }
 
