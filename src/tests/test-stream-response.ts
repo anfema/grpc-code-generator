@@ -24,7 +24,7 @@ test('Stream response | Slow (short timeout should fail)', async (t) => {
 	const port = await createServer();
 	const client = await createClient(port);
 
-	return t.throws(Promise.race([
+	await t.throwsAsync(Promise.race([
 		timeout(500),
 		readStreamAsPromise(
 			client.streamResponse({
@@ -40,7 +40,7 @@ test('Stream response | Slow (long timeout should not fail)', async (t) => {
 	const port = await createServer();
 	const client = await createClient(port);
 
-	return Promise.race([
+	await Promise.race([
 		timeout(1500),
 		readStreamAsPromise(
 			client.streamResponse({
@@ -56,7 +56,7 @@ test('Stream response | Error (should fail)', async (t) => {
 	const port = await createServer();
 	const client = await createClient(port);
 
-	return t.throws(readStreamAsPromise(
+	await t.throwsAsync(readStreamAsPromise(
 		client.streamResponse({
 			id: '',
 			mode: 'error',

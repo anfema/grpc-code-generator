@@ -24,7 +24,7 @@
 		"grpc-code-generator": "dist/main/main.js"
 	},
 	"devDependencies": {
-		"ava": "^0.25.0",
+		"ava": "^1.0.1",
 		"del-cli": "^1.1.0",
 		"grpc": "^1.16.1",
 		"uuid": "^3.1.0"
@@ -45,7 +45,6 @@
 			"dist/tests/test*.js"
 		],
 		"concurrency": 4,
-		"failFast": true,
 		"failWithoutAssertions": false
 	}
 }

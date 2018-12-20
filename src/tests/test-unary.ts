@@ -8,7 +8,7 @@ test('Unary call | normal', async (t) => {
 	const port = await createServer();
 	const client = await createClient(port);
 
-	return callbackAsPromise(cb => {
+	await callbackAsPromise(cb => {
 		client.unaryCall({
 			id: '',
 			mode: 'normal',
@@ -22,7 +22,7 @@ test('Unary call | slow (short timeout should fail)', async (t) => {
 	const port = await createServer();
 	const client = await createClient(port);
 
-	return t.throws(Promise.race([
+	await t.throwsAsync(Promise.race([
 		timeout(500),
 		callbackAsPromise(cb => { client.unaryCall({
 			id: '',
@@ -36,7 +36,7 @@ test('Unary call | slow (long timeout should not fail)', async (t) => {
 	const port = await createServer();
 	const client = await createClient(port);
 
-	return Promise.race([
+	await Promise.race([
 		timeout(1500),
 		callbackAsPromise(cb => { client.unaryCall({
 			id: '',
@@ -50,7 +50,7 @@ test('Unary call | error (should fail)', async (t) => {
 	const port = await createServer();
 	const client = await createClient(port);
 
-	return t.throws(callbackAsPromise(cb => {
+	await t.throwsAsync(callbackAsPromise(cb => {
 		client.unaryCall({
 			id: '',
 			mode: 'error',

@@ -9,7 +9,7 @@ test('Stream Request | Normal', async (t) => {
 	const port = await createServer();
 	const client = await createClient(port);
 
-	return callbackAsPromise(cb => {
+	await callbackAsPromise(cb => {
 		const requestStream = client.streamRequest(null, null, cb);
 		for (let i = 0; i < 10; i++) {
 			requestStream.write({
@@ -26,7 +26,7 @@ test('Stream Request | Slow (short timeout should fail)', async (t) => {
 	const port = await createServer();
 	const client = await createClient(port);
 
-	return t.throws(Promise.race([
+	await t.throwsAsync(Promise.race([
 		timeout(500),
 		callbackAsPromise(cb => {
 			const requestStream = client.streamRequest(null, null, cb);
@@ -46,7 +46,7 @@ test('Stream request | Slow (long timeout should not fail)', async (t) => {
 	const port = await createServer();
 	const client = await createClient(port);
 
-	return Promise.race([
+	await Promise.race([
 		timeout(1500),
 		callbackAsPromise(cb => {
 			const requestStream = client.streamRequest(null, null, cb);
@@ -66,7 +66,7 @@ test('Stream request | Error (should fail)', async (t) => {
 	const port = await createServer();
 	const client = await createClient(port);
 
-	return t.throws(callbackAsPromise(cb => {
+	await t.throwsAsync(callbackAsPromise(cb => {
 		const requestStream = client.streamRequest(null, null, cb);
 		for (let i = 0; i < 10; i++) {
 			requestStream.write({

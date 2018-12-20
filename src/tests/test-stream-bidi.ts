@@ -19,8 +19,7 @@ test('BiDi response | Normal', async (t) => {
 	}
 	stream.end();
 
-	return readStreamAsPromise(stream);
-
+	await readStreamAsPromise(stream);
 });
 
 test('Bidi response | Slow (short timeout should fail)', async (t) => {
@@ -38,7 +37,7 @@ test('Bidi response | Slow (short timeout should fail)', async (t) => {
 	}
 	stream.end();
 
-	return t.throws(Promise.race([
+	await t.throwsAsync(Promise.race([
 		timeout(500),
 		readStreamAsPromise(stream)
 	]));
@@ -59,7 +58,7 @@ test('BiDi response | Slow (long timeout should not fail)', async (t) => {
 	}
 	stream.end();
 
-	return Promise.race([
+	await Promise.race([
 		timeout(1500),
 		readStreamAsPromise(stream)
 	]);
@@ -80,7 +79,7 @@ test('BiDi response | Error (should fail)', async (t) => {
 	}
 	stream.end();
 
-	return t.throws(readStreamAsPromise(stream));
+	await t.throwsAsync(readStreamAsPromise(stream));
 });
 
 test('BiDi response | Retry (retry 2 times, should fail)', async (t) => {
