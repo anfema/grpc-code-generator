@@ -24,7 +24,7 @@ export function timeout(timeoutMs: number, ...promises: Promise<any>[]): Promise
 	return Promise.race([
 		...promises,
 		new Promise((resolve, reject) => {
-			setTimeout(() => { reject(`Timeout after ${timeoutMs} ms`); }, timeoutMs);
+			setTimeout(() => { reject(new Error(`Timeout after ${timeoutMs} ms`)); }, timeoutMs);
 		})
 	])
 }
