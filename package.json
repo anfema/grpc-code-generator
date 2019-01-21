@@ -1,40 +1,39 @@
 {
-	"private": true,
 	"name": "@anfema/grpc-code-generator",
-	"version": "0.2.1",
+	"version": "0.3.0",
 	"description": "A code generator for gRPC",
 	"license": "MIT",
-	"main": "dist/main/index.js",
+	"main": "dist/index.js",
 	"author": "André Wachter <a.wachter@anfe.ma>",
+	"repository": "github:anfema/grpc-code-generator",
 	"scripts": {
-		"postinstall": "npm run main.build",
-		"build": "npm run main.build; npm run tests.gen; npm run tests.build",
-		"dev": "npm run main.dev & npm run tests.dev & wait",
-		"clean": "del dist/* src/tests/gen/*",
+		"build": "npm run main.build && npm run test.gen && npm run test.build",
+		"dev": "npm run main.dev & npm run test.dev & wait",
+		"clean": "del dist src/__tests__/gen/*",
 		"purge": "del node_modules",
-		"tests": "npm run main.build; npm run tests.gen; npm run tests.build; npm run tests.run",
-		"main.build": "tsc --project src/main",
-		"main.dev": "tsc --watch --project src/main",
-		"tests.gen": "node dist/main/main.js -o src/tests/gen src/tests/proto/test.proto",
-		"tests.build": "tsc --project src/tests",
-		"tests.dev": "tsc --watch --project src/tests",
-		"tests.run": "ava --verbose"
+		"test": "npm run build && npm run test.run",
+		"main.build": "tsc --project src/",
+		"main.dev": "tsc --watch --project src/",
+		"test.gen": "node dist/main.js -o src/__tests__/gen src/__tests__/proto/test.proto",
+		"test.build": "tsc --project src/__tests__",
+		"test.dev": "tsc --watch --project src/__tests__",
+		"test.run": "ava"
 	},
 	"bin": {
-		"grpc-code-generator": "dist/main/main.js"
+		"grpc-code-generator": "dist/main.js"
 	},
 	"devDependencies": {
-		"ava": "^1.0.1",
-		"del-cli": "^1.1.0",
-		"grpc": "^1.16.1",
-		"uuid": "^3.1.0"
-	},
-	"dependencies": {
 		"@types/node": "^10.5.5",
 		"@types/uuid": "^3.4.3",
 		"@types/yargs": "^11.0.0",
+		"ava": "^1.0.1",
+		"del-cli": "^1.1.0",
+		"grpc": "^1.16.1",
+		"uuid": "^3.1.0",
+		"typescript": "^3.0.1"
+	},
+	"dependencies": {
 		"protobufjs": "~6.8.0",
-		"typescript": "^3.0.1",
 		"yargs": "^12.0.1"
 	},
 	"engines": {
@@ -42,9 +41,8 @@
 	},
 	"ava": {
 		"files": [
-			"dist/tests/test*.js"
+			"dist/__tests__/test*.js"
 		],
-		"concurrency": 4,
 		"failWithoutAssertions": false
 	}
 }
