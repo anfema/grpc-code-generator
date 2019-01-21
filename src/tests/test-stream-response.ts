@@ -1,122 +1,52 @@
 import test from 'ava';
 import { v4 as uuid } from 'uuid';
-import { createClient } from './client';
-import { createServer } from './server';
-import { readStreamAsPromise, timeout } from './utils';
+import { Mode } from './gen/Request';
+import { readStreamAsPromise, timeout, withTestApplication } from './utils';
 
+test('Normal', (t) => withTestApplication(async client => {
+	const call = await readStreamAsPromise(client.streamResponse({ id: '', mode: Mode.DEFAULT }));
 
-test('Stream response | Normal', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
+	t.is(call.length, 3);
+}))
 
-	const response = await readStreamAsPromise(
-		client.streamResponse({
-			id: '',
-			mode: 'normal',
-			count: 4
-		})
-	);
+test('Slow (short timeout should fail)', (t) => withTestApplication(async client => {
+	const call = timeout(500, readStreamAsPromise(client.streamResponse({ id: '', mode: Mode.SLOW })));
 
-	t.is(response.length, 4);
-});
+	await t.throwsAsync(call);
+}))
 
-test('Stream response | Slow (short timeout should fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
+test('Slow (long timeout should not fail)', (t) => withTestApplication(async client => {
+	const call = timeout(1500, readStreamAsPromise(client.streamResponse({ id: '', mode: Mode.SLOW })));
 
-	await t.throwsAsync(Promise.race([
-		timeout(500),
-		readStreamAsPromise(
-			client.streamResponse({
-				id: '',
-				mode: 'slow',
-				count: 4
-			})
-		)
-	]));
-});
+	await t.notThrowsAsync(call);
+}))
 
-test('Stream response | Slow (long timeout should not fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
+test('Error (should fail)', (t) => withTestApplication(async client => {
+	const call = readStreamAsPromise(client.streamResponse({ id: '', mode: Mode.ERROR }));
 
-	await Promise.race([
-		timeout(1500),
-		readStreamAsPromise(
-			client.streamResponse({
-				id: '',
-				mode: 'slow',
-				count: 4
-			})
-		)
-	]);
-});
+	await t.throwsAsync(call);
+}))
 
-test('Stream response | Error (should fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
-
-	await t.throwsAsync(readStreamAsPromise(
-		client.streamResponse({
-			id: '',
-			mode: 'error',
-			count: 0,
-		})
-	));
-});
-
-test('Stream response | Retry (retry 2 times, should fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
-
-	t.plan(2);
+test('Retry (retry 2 times, should fail)', (t) => withTestApplication(async client => {
 	const id = uuid();
 
 	for (let i = 0; i < 2; i++) {
-		try {
-			await readStreamAsPromise(client.streamResponse({
-				id: id,
-				mode: 'retry',
-				count: 0,
-			}));
+		const call = readStreamAsPromise(client.streamResponse({ id: id, mode: Mode.RETRY }));
 
-			t.fail();
-		}
-		catch (err) {
-			t.pass();
-		}
+		await t.throwsAsync(call);
 	}
-});
+}))
 
-test('Stream response | Retry (retry 3 times, should not fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
-
-	t.plan(3);
+test('Retry (retry 3 times, should not fail)', (t) => withTestApplication(async client => {
 	const id = uuid();
 
 	for (let i = 0; i < 3; i++) {
-		try {
-			await readStreamAsPromise(client.streamResponse({
-				id: id,
-				mode: 'retry',
-				count: 0,
-			}));
+		const call = readStreamAsPromise(client.streamResponse({ id: id, mode: Mode.RETRY }));
 
-			if (i === 2) {
-				t.pass();
-			}
-			else {
-				t.fail();
-			}
-		}
-		catch (err) {
-			if (i < 2) {
-				t.pass();
-			}
-			else {
-				t.fail();
-			}
+		if (i < 2) {
+			await t.throwsAsync(call);
+		} else {
+			await t.notThrowsAsync(call);
 		}
 	}
-});
+}))

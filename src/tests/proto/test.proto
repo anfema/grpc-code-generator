@@ -1,14 +1,19 @@
 syntax = "proto3";
 
 message Request {
+  enum Mode {
+		DEFAULT = 0;
+		ERROR = 1;
+		SLOW = 2;
+		RETRY = 3;
+  }
+
   string id = 1;
-  string mode = 2;
-  int32 count = 3;
+  Mode mode = 2;
 }
 
 message Response {
   string id = 1;
-  int32 count = 2;
 }
 
 service TestService {

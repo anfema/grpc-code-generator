@@ -1,117 +1,57 @@
 import test from 'ava';
 import { v4 as uuid } from 'uuid';
-import { createClient } from './client';
-import { createServer } from './server';
-import { callbackAsPromise, timeout } from './utils';
+import { Mode } from './gen/Request';
+import { callbackAsPromise, timeout, withTestApplication } from './utils';
+import { Response } from './gen'
 
-test('Unary call | normal', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
+test('Normal', (t) => withTestApplication(async client => {
+	const id = uuid();
+	const call = await callbackAsPromise<Response>(cb => client.unaryCall({ id: id, mode: Mode.DEFAULT }, null, null, cb));
 
-	await callbackAsPromise(cb => {
-		client.unaryCall({
-			id: '',
-			mode: 'normal',
-			count: 0,
-		}, null, null, cb)
-	});
+	await t.is(call.id, id);
+}))
 
-});
+test('Slow (short timeout should fail)', (t) => withTestApplication(async client => {
+	const id = uuid();
+	const call = timeout(500, callbackAsPromise(cb => client.unaryCall({ id: id, mode: Mode.SLOW }, null, null, cb)));
 
-test('Unary call | slow (short timeout should fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
+	await t.throwsAsync(call);
+}))
 
-	await t.throwsAsync(Promise.race([
-		timeout(500),
-		callbackAsPromise(cb => { client.unaryCall({
-			id: '',
-			mode: 'slow',
-			count: 0,
-		}, null, null, cb) })
-	]));
-});
+test('Slow (long timeout should not fail)', (t) => withTestApplication(async client => {
+	const id = uuid();
+	const call = await timeout(1500, callbackAsPromise<Response>(cb => client.unaryCall({ id: id, mode: Mode.SLOW }, null, null, cb)));
 
-test('Unary call | slow (long timeout should not fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
+	await t.is(call.id, id);
+}))
 
-	await Promise.race([
-		timeout(1500),
-		callbackAsPromise(cb => { client.unaryCall({
-			id: '',
-			mode: 'slow',
-			count: 0,
-		}, null, null, cb) })
-	]);
-});
+test('Error (should fail)', (t) => withTestApplication(async client => {
+	const id = uuid();
+	const call = callbackAsPromise(cb => client.unaryCall({ id: id, mode: Mode.ERROR }, null, null, cb));
 
-test('Unary call | error (should fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
+	await t.throwsAsync(call);
+}))
 
-	await t.throwsAsync(callbackAsPromise(cb => {
-		client.unaryCall({
-			id: '',
-			mode: 'error',
-			count: 0,
-		}, null, null, cb)
-	}));
-});
-
-test('Unary call | retry (retry 2 times, should fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
-
-	t.plan(2);
-
+test('Retry (retry 2 times, should fail)', (t) => withTestApplication(async client => {
 	const id = uuid();
 
 	for (let i = 0; i < 2; i++) {
-		try {
-			await callbackAsPromise(cb => client.unaryCall({
-				id: id,
-				mode: 'retry',
-				count: 0,
-			}, null, null, cb));
-			t.fail();
-		}
-		catch (err) {
-			t.pass();
-		}
+		const call = callbackAsPromise(cb => client.unaryCall({ id: id, mode: Mode.RETRY }, null, null, cb));
+
+		await t.throwsAsync(call);
 	}
-});
+}))
 
-test('Unary call | retry (retry 3 times, should not fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
-
-	t.plan(3);
-
+test('Retry (retry 3 times, should not fail)', (t) => withTestApplication(async client => {
 	const id = uuid();
 
 	for (let i = 0; i < 3; i++) {
-		try {
-			await callbackAsPromise(cb => client.unaryCall({
-				id: id,
-				mode: 'retry',
-				count: 0,
-			}, null, null, cb));
+		const call = callbackAsPromise<Response>(cb => client.unaryCall({ id: id, mode: Mode.RETRY }, null, null, cb));
 
-			if (i === 2) {
-				t.pass();
-			}
-			else {
-				t.fail();
-			}
-		}
-		catch (err) {
-			if (i < 2) {
-				t.pass();
-			}
-			else {
-				t.fail();
-			}
+		if (i < 2) {
+			await t.throwsAsync(call);
+		} else {
+			await t.notThrowsAsync(call);
 		}
 	}
-});
+}))

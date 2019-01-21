@@ -18,7 +18,7 @@
 		"pretty": true,
 		"rootDir": "./",
 		"baseUrl": "./",
-		"types": [ "node" ]
+		"types": [ "node", "ava" ]
 	},
 	"exclude": [
 		"node_modules"

@@ -1,7 +1,10 @@
+import { ClientReadableStream, Server, ServerCredentials, credentials } from "grpc";
 import { setTimeout } from "timers";
-import { ClientReadableStream } from "grpc";
+import { grpcServices } from './proto';
+import { TestServiceHandler } from "./server";
+import { Client } from "./gen/TestService/grpc-node";
 
-export function callbackAsPromise(fn: (callback: (error: any, data: any) => void) => void): Promise<void> {
+export function callbackAsPromise<T>(fn: (callback: (error: any, data: T | undefined) => void) => void): Promise<T> {
 	return new Promise((resolve, reject) => {
 		fn((error, data) => {
 			if (error) {
@@ -45,3 +48,22 @@ export function readStreamAsPromise<T>(stream: ClientReadableStream<T>): Promise
 			});
 	});
 }
+
+export async function withTestApplication<T>(fn: (ctx: Client) => Promise<T>): Promise<T> {
+	const grpc = await grpcServices();
+	const port = Math.round(Math.random() * 20000 + 10000);
+
+	const server = new Server();
+	server.addService(grpc.TestService.service, new TestServiceHandler());
+	server.bind(`0.0.0.0:${port}`, ServerCredentials.createInsecure());
+	server.start();
+
+	const client = new grpc.TestService(`0.0.0.0:${port}`, credentials.createInsecure())
+
+	try {
+		return await fn(client);
+	} finally {
+		server.forceShutdown();
+	}
+}
+

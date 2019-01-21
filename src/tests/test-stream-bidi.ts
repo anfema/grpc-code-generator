@@ -1,148 +1,76 @@
 import test from 'ava';
 import { v4 as uuid } from 'uuid';
-import { createClient } from './client';
-import { createServer } from './server';
-import { readStreamAsPromise, timeout } from './utils';
+import { Mode } from './gen/Request';
+import { readStreamAsPromise, timeout, withTestApplication } from './utils';
 
-test('BiDi response | Normal', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
-
+test('Normal', (t) => withTestApplication(async client => {
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
-		stream.write({
-			id: '',
-			mode: 'normal',
-			count: 0,
-		});
+		stream.write({ id: '', mode: Mode.DEFAULT });
 	}
 	stream.end();
 
-	await readStreamAsPromise(stream);
-});
+	await t.notThrowsAsync(readStreamAsPromise(stream));
+}))
 
-test('Bidi response | Slow (short timeout should fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
-
+test('Slow (short timeout should fail)', (t) => withTestApplication(async client => {
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
-		stream.write({
-			id: '',
-			mode: 'slow',
-			count: 0,
-		});
+		stream.write({ id: '', mode: Mode.SLOW });
 	}
 	stream.end();
 
-	await t.throwsAsync(Promise.race([
-		timeout(500),
-		readStreamAsPromise(stream)
-	]));
-});
+	await t.throwsAsync(timeout(500, readStreamAsPromise(stream)));
+}))
 
-test('BiDi response | Slow (long timeout should not fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
-
+test('Slow (long timeout should not fail)', (t) => withTestApplication(async client => {
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
-		stream.write({
-			id: '',
-			mode: 'slow',
-			count: 0,
-		});
+		stream.write({ id: '', mode: Mode.SLOW });
 	}
 	stream.end();
 
-	await Promise.race([
-		timeout(1500),
-		readStreamAsPromise(stream)
-	]);
-});
+	await t.notThrowsAsync(timeout(1500, readStreamAsPromise(stream)));
+}))
 
-test('BiDi response | Error (should fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
-
+test('Error (should fail)', (t) => withTestApplication(async client => {
 	const stream = client.streamBidi();
 
 	for (let i = 0; i < 10; i++) {
-		stream.write({
-			id: '',
-			mode: 'error',
-			count: 0,
-		});
+		stream.write({ id: '', mode: Mode.ERROR });
 	}
 	stream.end();
 
 	await t.throwsAsync(readStreamAsPromise(stream));
-});
+}))
 
-test('BiDi response | Retry (retry 2 times, should fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
-
-	t.plan(2);
-
+test('Retry (retry 2 times, should fail)', (t) => withTestApplication(async client => {
 	const id = uuid();
 
 	for (let i = 0; i < 2; i++) {
-		try {
-			const stream = client.streamBidi();
-			stream.write({
-				id: '',
-				mode: 'retry',
-				count: 0,
-			});
-			stream.end();
+		const stream = client.streamBidi();
+		stream.write({ id: id, mode: Mode.RETRY });
+		stream.end();
 
-			await readStreamAsPromise(stream)
-
-			t.fail();
-		}
-		catch (err) {
-			t.pass();
-		}
+		await t.throwsAsync(readStreamAsPromise(stream));
 	}
-});
+}))
 
-test('Stream response | Retry request(retry 3 times, should not fail)', async (t) => {
-	const port = await createServer();
-	const client = await createClient(port);
-
-	t.plan(3);
-
+test('Retry request(retry 3 times, should not fail)', (t) => withTestApplication(async client => {
 	const id = uuid();
 
 	for (let i = 0; i < 3; i++) {
-		try {
-			const stream = client.streamBidi();
-			stream.write({
-				id: id,
-				mode: 'retry',
-				count: 0,
-			});
-			stream.end();
-			await readStreamAsPromise(stream)
+		const stream = client.streamBidi();
+		stream.write({ id: id, mode: Mode.RETRY });
+		stream.end();
 
-			if (i === 2) {
-				t.pass();
-			}
-			else {
-				t.fail();
-			}
-		}
-		catch (err) {
-			if (i < 2) {
-				t.pass();
-			}
-			else {
-				t.fail();
-			}
+		if (i < 2) {
+			await t.throwsAsync(readStreamAsPromise(stream));
+		} else {
+			await t.notThrowsAsync(readStreamAsPromise(stream));
 		}
 	}
-});
+}))

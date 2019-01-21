@@ -1,38 +1,38 @@
-import { sendUnaryData, Server, ServerCredentials, ServerDuplexStream, ServerReadableStream, ServerUnaryCall, ServerWriteableStream } from 'grpc';
+import { sendUnaryData, ServerDuplexStream, ServerReadableStream, ServerUnaryCall, ServerWriteableStream } from 'grpc';
 import { Request, Response } from './gen';
 import { Service as TestService } from './gen/TestService/grpc-node';
-import { grpcServices } from './proto';
-import { getState } from './state';
+import { Mode } from './gen/Request';
 
-const defaultResponse: Response = {
-	id: '',
-	count: 0
+interface State {
+	retries: number;
 }
 
-class TestServiceHandler implements TestService {
+export class TestServiceHandler implements TestService {
+	private readonly state = new Map<string, State>();
+
 	unaryCall(call: ServerUnaryCall<Request>, callback: sendUnaryData<Response>): void {
 		const request = call.request;
 
 		switch (request.mode) {
-		case 'normal':
-			callback(null, defaultResponse);
+		case Mode.DEFAULT:
+			callback(null, { id: request.id });
 			break;
-		case 'slow':
+		case Mode.SLOW:
 			setTimeout(() => {
-				callback(null, defaultResponse);
+				callback(null, { id: request.id });
 			}, 1000);
 			break;
-		case 'retry':
-			const state = getState(request.id)
+		case Mode.RETRY:
+			const state = this.getState(request.id)
 			if (state.retries === 2) {
-				callback(null, defaultResponse);
+				callback(null, { id: request.id });
 			}
 			else {
 				state.retries++;
 				callback(new Error('Expected error in unaryCall()'), null);
 			}
 			break;
-		case 'error':
+		case Mode.ERROR:
 			callback(new Error('Expected error in unaryCall()'), null);
 			break;
 		default:
@@ -44,24 +44,24 @@ class TestServiceHandler implements TestService {
 		const request = call.request;
 
 		switch (request.mode) {
-		case 'normal':
-			for (let i = 0; i < request.count; i++) {
-				call.write(defaultResponse);
+		case Mode.DEFAULT:
+			for (let i = 0; i < 3; i++) {
+				call.write({ id: request.id });
 			}
 			call.end();
 			break;
-		case 'slow':
+		case Mode.SLOW:
 			setTimeout(() => {
-				for (let i = 0; i < request.count; i++) {
-					call.write(defaultResponse);
+				for (let i = 0; i < 3; i++) {
+					call.write({ id: request.id });
 				}
 				call.end();
 			}, 1000);
 			break;
-		case 'retry':
-			const state = getState(request.id)
+		case Mode.RETRY:
+			const state = this.getState(request.id)
 			if (state.retries === 2) {
-				for (let i = 0; i < request.count; i++) {
+				for (let i = 0; i < 3; i++) {
 					call.write({
 
 					});
@@ -73,7 +73,7 @@ class TestServiceHandler implements TestService {
 				call.emit('error', new Error('Expected error in unaryCall()'));
 			}
 			break;
-		case 'error':
+		case Mode.ERROR:
 			call.emit('error', new Error('Expected error in unaryCall()'));
 				break;
 		default:
@@ -95,25 +95,25 @@ class TestServiceHandler implements TestService {
 			.on('end', () => {
 				const request = requests[0];
 				switch (request.mode) {
-				case 'normal':
-						callback(null, defaultResponse);
+				case Mode.DEFAULT:
+						callback(null, { id: request.id });
 					break;
-				case 'slow':
+				case Mode.SLOW:
 					setTimeout(() => {
-						callback(null, defaultResponse);
+						callback(null, { id: request.id });
 					}, 1000);
 					break;
-				case 'retry':
-					const state = getState(request.id)
+				case Mode.RETRY:
+					const state = this.getState(request.id)
 					if (state.retries === 2) {
-						callback(null, defaultResponse);
+						callback(null, { id: request.id });
 					}
 					else {
 						state.retries++;
 						callback(new Error('Expected error in unaryCall()'), null);
 					}
 					break;
-				case 'error':
+				case Mode.ERROR:
 					callback(new Error('Expected error in unaryCall()'), null);
 					break;
 				default:
@@ -135,16 +135,16 @@ class TestServiceHandler implements TestService {
 				const request = requests[0];
 
 				switch (request.mode) {
-				case 'normal':
-					for (let i = 0; i < request.count; i++) {
+				case Mode.DEFAULT:
+					for (let i = 0; i < 3; i++) {
 						call.write({
 
 						});
 					}
 					call.end();
-				case 'slow':
+				case Mode.SLOW:
 					setTimeout(() => {
-						for (let i = 0; i < request.count; i++) {
+						for (let i = 0; i < 3; i++) {
 							call.write({
 
 							});
@@ -152,10 +152,10 @@ class TestServiceHandler implements TestService {
 						call.end();
 					}, 1000);
 					break;
-				case 'retry':
-					const state = getState(request.id)
+				case Mode.RETRY:
+					const state = this.getState(request.id)
 					if (state.retries === 2) {
-						for (let i = 0; i < request.count; i++) {
+						for (let i = 0; i < 3; i++) {
 							call.write({
 
 							});
@@ -167,7 +167,7 @@ class TestServiceHandler implements TestService {
 						call.emit('error', new Error('Expected error in unaryCall()'));
 					}
 					break;
-				case 'error':
+				case Mode.ERROR:
 					call.emit('error', new Error('Expected error in unaryCall()'));
 					break;
 				default:
@@ -175,16 +175,17 @@ class TestServiceHandler implements TestService {
 				}
 			});
 	}
-}
 
-export async function createServer(): Promise<number> {
-	const port = Math.round(Math.random() * 20000 + 10000);
-	const grpc = await grpcServices();
-	const server = new Server();
+	private getState(id: string): State {
+		const info = this.state.get(id);
 
-	server.addService(grpc.TestService.service, new TestServiceHandler());
-	server.bind(`0.0.0.0:${port}`, ServerCredentials.createInsecure());
-	server.start();
-
-	return port;
+		if (info) {
+			return info;
+		}
+		else {
+			const newInfo = { retries: 0 };
+			this.state.set(id, newInfo);
+			return newInfo;
+		}
+	}
 }
