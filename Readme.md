@@ -1,46 +1,58 @@
 grpc-code-generator
 ===
 
-A code generator for gRPC `proto` files. Currently contains templates for generating Typescript definitions for the plain callback/streams based API for a modified version of [grpc-node](https://github.com/grpc/grpc-node/pull/84).
-
-
-Directory layout
----
-This project uses a Yarn workspace layout
-
-| Directory      | Description                    |
-|----------------|--------------------------------|
-|`/main`         | Main NPM package               |
-|`/dependencies` | Dependencies as git submodules |
-
-
-Preparation
----
-Init and clone the submodules (shallow init is enough):
-```sh
-$ git submodule update --init
-```
-
-Install dependencies & build project
-```sh
-$ yarn/npm
-```
+A code generator for gRPC/protobuf `.proto` files. Contains templates for generating Typescript definitions for the plain callback/streams based API for [grpc-node](https://github.com/grpc/grpc-node) and protobuf message types.
 
 
 Running
 ---
 ```sh
-$ yarn/npm run grpc-code-generator [-o <out_dir>] path/to/main.proto
+$ yarn/npm run grpc-code-generator [options] path/to/main.proto [path/to/another.proto]
 ```
 
+Options can be specified on the command line or in a config file. If both are present, the command line options take precedence.
+
+Options:
+```
+-o  --out <out_dir>
+
+    Output directory (default: src-gen/)
+
+-I  --proto_path <include_dir>     
+	
+    Root path for resolving imports (may be specified multiple times, default: current working dir)
+
+-t  --templates <template1> [<template2> …]
+
+    Path to template modules used for generating code (default: builtin templates)
+
+-c  --config <file>
+
+    Path to JSON config file.
+```
+
+Config file
+```
+{
+	"out": "<out_dir>",
+	"proto_paths": [
+		"<dir1>",
+		"<dir2>"
+	],
+	"files": [
+		"path/to/main.proto",
+		"path/to/another.proto",
+	]
+}
+```
 
 Generated files
 ---
-| File                                   | Content                           |
-|----------------------------------------|-----------------------------------|
+| File                                     | Content                           |
+|------------------------------------------|-----------------------------------|
 |`/<package>/index.d.ts`                   | Interfaces for message types        |
-|`/<package>/<ServiceName>/grpc-node.d.ts` | Service types for client and server with standard grpc-node interface |
-|`/message-base.d.ts`                      | Base message type with improved constructor |
+|`/<package>/<ServiceName>/grpc-node.d.ts` | Client/server typings with standard grpc-node interface |
+|`/message-base.d.ts`                      | Base message type with constructor |
 |`/grpc.d.ts`                              | Object with constructor functions for messages and service descriptions (what `grpc.load()` returns) |
 
 
@@ -114,10 +126,12 @@ import { Client } from './gen/TestService/grpc-node';
 
 const client = new grpc.TestService('0.0.0.0:3000', credentials.createInsecure());
 
+// unary request
 client.unaryCall(new grpc.Request({ mode: 'normal' }), (err, response) => {
 	/* */
 });
 
+// streaming response
 const stream1 = client.streamResponse(new grpc.Request())
 	.on('data', (response) => {
 		/* */
@@ -129,6 +143,7 @@ const stream1 = client.streamResponse(new grpc.Request())
 		/* */
 	});
 
+// streaming request
 const requestStream = client.streamRequest(cb);
 for (let i = 0; i < 10; i++) {
 	requestStream.write(new grpc.Request({ mode: 'normal' }));
@@ -156,9 +171,21 @@ stream.end();
 
 Development
 ---
+Getting the sources
+```sh
+$ git clone https://github.com/anfema/grpc-code-generator.git
+# or
+$ git clone git@github.com:anfema/grpc-code-generator.git
+```
+
+Install dependencies & build project
+```sh
+$ yarn
+#or 
+$ npm
+```
+
+Tasks:
 * Build once: `$ yarn/npm run build`
 * Build, watch files: `$ yarn/npm run dev`
 * Remove generated files: `$ yarn/npm run clean`
-
-Todo
----
