@@ -1,4 +1,4 @@
 /node_modules
 /dist
-/src/tests/gen
+/src/__tests__/gen
 /yarn-error.log

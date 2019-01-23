@@ -1,10 +1,10 @@
 import * as path from 'path';
 import { Root } from 'protobufjs';
-import { createGrpcServices, parseProtoFiles } from '../main/load';
+import { createGrpcServices, parseProtoFiles } from '../load';
 import Description from './gen/grpc-node';
 
-const rootPath = path.join(process.cwd(), 'src', 'tests', 'proto');
-const protoPath = path.join(process.cwd(), 'src', 'tests', 'proto', 'test.proto');
+const rootPath = path.join(process.cwd(), 'src', '__tests__', 'proto');
+const protoPath = path.join(process.cwd(), 'src', '__tests__', 'proto', 'test.proto');
 
 let reflectionRoot: Root;
 

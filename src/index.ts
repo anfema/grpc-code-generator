@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as utils from 'util';
-import { promisify } from 'util';
 import { Root } from 'protobufjs';
+import { promisify } from 'util';
 
 // export { TemplateMap };
 export type TemplateFunction = (context: Context) => void;

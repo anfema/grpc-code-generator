@@ -17,7 +17,7 @@ export interface Config {
 export async function prepareConfig(config: Config): Promise<Config> {
 	const templatePaths = config.templates.map(t => {
 		const filePath = tryResolveModule(path.join(process.cwd(), t)) ||
-			tryResolveModule(path.join(__dirname, '..', 'main', 'templates', t));
+			tryResolveModule(path.join(__dirname, 'templates', t));
 
 		if (filePath) {
 			return filePath;
