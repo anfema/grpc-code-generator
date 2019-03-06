@@ -1,9 +1,6 @@
-import { Root, Namespace, Type, Service, Field, Method } from 'protobufjs';
-import {
-	indent, recursiveNamespacesOf, namespaceImportDeclarations, servicesOf,
-	namespacedReferenceForType, banner
-} from '../utils';
+import { Method, Root, Service } from 'protobufjs';
 import { name } from '.';
+import { banner, indent, namespacedReferenceForType, namespaceImportDeclarations } from '../utils';
 
 export default function(service: Service, root: Root): string {
 	return (
