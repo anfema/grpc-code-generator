@@ -18,7 +18,6 @@ export const cli = yargs
 		alias: 't',
 		array: true,
 		type: 'string',
-		default: new Array<string>(),
 		desc: 'Templates for code generation (default: "grpc-node" and "protobufjs6")',
 	})
 	.option('config', {
