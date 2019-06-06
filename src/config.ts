@@ -6,13 +6,19 @@ import { cli } from './cli';
 
 const stat = util.promisify(fs.stat);
 
-
 export interface Config {
 	out: string;
 	templates: string[];
 	proto_paths: string[];
 	files: string[];
 }
+
+export const defaultConfig: Config = {
+	out: 'src-gen',
+	templates: ['grpc-node', 'protobufjs6'],
+	proto_paths: [process.cwd()],
+	files: [],
+};
 
 export async function prepareConfig(config: Config): Promise<Config> {
 	const templatePaths = config.templates.map(t => {

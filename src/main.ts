@@ -4,17 +4,7 @@ import * as path from 'path';
 import * as process from 'process';
 import { cli } from './cli';
 import { Context, TemplateFunction, loadProto } from './';
-import { Config, configFromArgs, configFromFile, mergeConfig, prepareConfig } from './config';
-
-const defaultConfig: Config = {
-	out: 'src-gen',
-	templates: [
-		'grpc-node',
-		'protobufjs6',
-	],
-	proto_paths: [process.cwd()],
-	files: [],
-};
+import { configFromArgs, configFromFile, mergeConfig, prepareConfig, defaultConfig } from './config';
 
 (async function() {
 	try {
