@@ -18,12 +18,9 @@ const defaultConfig: Config = {
 
 (async function() {
 	try {
-		const argConfig = configFromArgs(cli);
-		const fileConfig = configFromFile(cli);
-
-		const config = await prepareConfig((fileConfig
-			? mergeConfig(argConfig, mergeConfig(fileConfig, defaultConfig))
-			: mergeConfig(argConfig, defaultConfig)) as Config);
+		const config = await prepareConfig(
+			mergeConfig(configFromArgs(cli), mergeConfig(configFromFile(cli), defaultConfig)),
+		);
 
 		const root = await loadProto(config.files, config.proto_paths);
 		const context = new Context(root);

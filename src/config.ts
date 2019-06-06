@@ -59,11 +59,13 @@ export function configFromArgs(args: typeof cli): Partial<Config> {
 	};
 }
 
-export function mergeConfig(config: Partial<Config>, defaultConfig: Partial<Config>): Partial<Config> {
-	return {
-		out: config.out || defaultConfig.out,
-		templates: config.templates || defaultConfig.templates,
-		proto_paths: config.proto_paths || defaultConfig.proto_paths,
-		files: config.files || defaultConfig.files,
-	};
+export function mergeConfig(config: Partial<Config> | undefined, defaultConfig: Config): Config {
+	return config != null
+		? {
+				out: config.out || defaultConfig.out,
+				templates: config.templates || defaultConfig.templates,
+				proto_paths: config.proto_paths || defaultConfig.proto_paths,
+				files: config.files || defaultConfig.files,
+		  }
+		: defaultConfig;
 }
