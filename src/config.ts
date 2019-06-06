@@ -64,8 +64,11 @@ export function mergeConfig(config: Partial<Config> | undefined, defaultConfig: 
 		? {
 				out: config.out || defaultConfig.out,
 				templates: config.templates || defaultConfig.templates,
-				proto_paths: config.proto_paths || defaultConfig.proto_paths,
-				files: config.files || defaultConfig.files,
+				proto_paths:
+					config.proto_paths != undefined
+						? config.proto_paths.concat(defaultConfig.proto_paths)
+						: defaultConfig.proto_paths,
+				files: config.files != undefined ? config.files.concat(defaultConfig.files) : defaultConfig.files,
 		  }
 		: defaultConfig;
 }
