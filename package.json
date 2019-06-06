@@ -23,18 +23,18 @@
 		"grpc-code-generator": "dist/main.js"
 	},
 	"devDependencies": {
-		"@types/node": "^10.14.8",
+		"@types/node": "^12.0.6",
 		"@types/uuid": "^3.4.3",
-		"@types/yargs": "^11.0.0",
-		"ava": "^1.4.1",
-		"del-cli": "^1.1.0",
+		"@types/yargs": "^13.0.0",
+		"ava": "^2.0.0",
+		"del-cli": "^2.0.0",
 		"grpc": "^1.21.1",
 		"typescript": "^3.5.1",
 		"uuid": "^3.1.0"
 	},
 	"dependencies": {
 		"protobufjs": "~6.8.0",
-		"yargs": "^12.0.1"
+		"yargs": "^13.2.4"
 	},
 	"engines": {
 		"node": ">=8.0.0"
