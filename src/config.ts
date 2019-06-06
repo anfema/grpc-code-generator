@@ -15,17 +15,19 @@ export interface Config {
 
 export const defaultConfig: Config = {
 	out: 'src-gen',
-	templates: ['grpc-node', 'protobufjs6'],
+	templates: [
+		'@anfema/grpc-code-generator/dist/templates/grpc-node',
+		'@anfema/grpc-code-generator/dist/templates/protobufjs6',
+	],
 	proto_paths: [process.cwd()],
 	files: [],
 };
 
 export async function prepareConfig(config: Config): Promise<Config> {
 	const templatePaths = config.templates.map(t => {
-		const filePath =
-			tryResolveModule(path.join(process.cwd(), t)) || tryResolveModule(path.join(__dirname, 'templates', t));
+		const filePath = tryResolveModule(t);
 
-		if (filePath) {
+		if (filePath != undefined) {
 			return filePath;
 		} else {
 			throw new Error(`Template module '${t}' not found.`);
