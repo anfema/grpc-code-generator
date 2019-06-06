@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { Arguments } from 'yargs';
+import { Arguments } from 'yargs';
 import * as util from 'util';
 import * as fs from 'fs';
 
@@ -16,28 +16,26 @@ export interface Config {
 
 export async function prepareConfig(config: Config): Promise<Config> {
 	const templatePaths = config.templates.map(t => {
-		const filePath = tryResolveModule(path.join(process.cwd(), t)) ||
-			tryResolveModule(path.join(__dirname, 'templates', t));
+		const filePath =
+			tryResolveModule(path.join(process.cwd(), t)) || tryResolveModule(path.join(__dirname, 'templates', t));
 
 		if (filePath) {
 			return filePath;
-		}
-		else {
+		} else {
 			throw new Error(`Template module '${t}' not found.`);
 		}
-	})
+	});
 
-	const protoFileStats = await Promise.all(config.files.map(p => stat(p)))
+	const protoFileStats = await Promise.all(config.files.map(p => stat(p)));
 
 	return {
 		out: config.out,
 		templates: templatePaths,
-		proto_paths: config.proto_paths
-			.map(p => path.isAbsolute(p) ? p : path.resolve(p)),
+		proto_paths: config.proto_paths.map(p => (path.isAbsolute(p) ? p : path.resolve(p))),
 		files: config.files
 			.filter((p, i) => protoFileStats[i].isFile())
-			.map(p => path.isAbsolute(p) ? p : path.resolve(p))
-	}
+			.map(p => (path.isAbsolute(p) ? p : path.resolve(p))),
+	};
 }
 
 export function loadConfig(args: Arguments): Partial<Config> | undefined {
@@ -46,8 +44,7 @@ export function loadConfig(args: Arguments): Partial<Config> | undefined {
 
 		if (configFile) {
 			return require(configFile);
-		}
-		else {
+		} else {
 			throw new Error(`Cannot find config file "${args['c']}"`);
 		}
 	}
@@ -59,7 +56,7 @@ export function configFromArgs(args: Arguments): Partial<Config> {
 		templates: args['t'],
 		proto_paths: typeof args['I'] === 'string' ? [args['I']] : args['I'], // coerce to array
 		files: args._.length > 0 ? args._ : undefined,
-	}
+	};
 }
 
 export function mergeConfig(config: Partial<Config>, defaultConfig: Partial<Config>): Partial<Config> {
@@ -67,7 +64,6 @@ export function mergeConfig(config: Partial<Config>, defaultConfig: Partial<Conf
 		out: config.out || defaultConfig.out,
 		templates: config.templates || defaultConfig.templates,
 		proto_paths: config.proto_paths || defaultConfig.proto_paths,
-		files: config.files ||  defaultConfig.files,
-	}
+		files: config.files || defaultConfig.files,
+	};
 }
-

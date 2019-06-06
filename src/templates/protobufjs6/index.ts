@@ -10,9 +10,9 @@ const template: TemplateFunction = (context: Context) => {
 
 	recursiveNamespacesOf(context.root).forEach(ns => {
 		if (hasTypeOrEnum(ns)) {
-			context.addTemplate(fileNameForNamespace(ns), namespace(ns, context.root))
+			context.addTemplate(fileNameForNamespace(ns), namespace(ns, context.root));
 		}
 	});
-}
+};
 
 export default template;

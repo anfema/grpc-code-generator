@@ -11,9 +11,9 @@ const template: TemplateFunction = (context: Context) => {
 	context.addTemplate('grpc-node.d.ts', grpcNode(context.root));
 
 	recursiveServicesOf(context.root).forEach(service => {
-		context.addTemplate(fileNameForService(service), serviceDeclaration(service, context.root))
+		context.addTemplate(fileNameForService(service), serviceDeclaration(service, context.root));
 	});
-}
+};
 
 export default template;
 
