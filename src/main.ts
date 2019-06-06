@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as process from 'process';
 import { cli } from './cli';
 import { Context, TemplateFunction, loadProto } from './';
-import { Config, configFromArgs, loadConfig, mergeConfig, prepareConfig } from './config';
+import { Config, configFromArgs, configFromFile, mergeConfig, prepareConfig } from './config';
 
 const defaultConfig: Config = {
 	out: 'src-gen',
@@ -19,7 +19,7 @@ const defaultConfig: Config = {
 (async function() {
 	try {
 		const argConfig = configFromArgs(cli);
-		const fileConfig = loadConfig(cli);
+		const fileConfig = configFromFile(cli);
 
 		const config = await prepareConfig((fileConfig
 			? mergeConfig(argConfig, mergeConfig(fileConfig, defaultConfig))

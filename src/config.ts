@@ -38,7 +38,7 @@ export async function prepareConfig(config: Config): Promise<Config> {
 	};
 }
 
-export function loadConfig(args: typeof cli): Partial<Config> | undefined {
+export function configFromFile(args: typeof cli): Partial<Config> | undefined {
 	if (args.config) {
 		const configFile = tryResolveModule(path.resolve(args.config));
 
