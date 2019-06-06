@@ -42,10 +42,22 @@ export function configFromFile(args: typeof cli): Partial<Config> | undefined {
 	if (args.config) {
 		const configFile = tryResolveModule(path.resolve(args.config));
 
-		if (configFile) {
-			return require(configFile);
-		} else {
+		if (!configFile) {
 			throw new Error(`Cannot find config file "${args.config}"`);
+		} else {
+			const configDir = path.dirname(configFile);
+			const config = require(configFile) as Partial<Config>;
+
+			// Relative paths are interpreted from the config file's dir
+			config.out = config.out && path.resolve(configDir, config.out);
+			config.templates =
+				config.templates && config.templates.map(t => (t.startsWith('.') ? path.resolve(configDir, t) : t));
+			config.proto_paths =
+				config.proto_paths &&
+				config.proto_paths.map(p => (path.isAbsolute(p) ? path.resolve(configDir, p) : p));
+			config.files = config.files && config.files.map(f => (path.isAbsolute(f) ? path.resolve(configDir, f) : f));
+
+			return config;
 		}
 	}
 }
