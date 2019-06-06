@@ -1,11 +1,11 @@
 import * as path from 'path';
-import { Arguments } from 'yargs';
 import * as util from 'util';
 import * as fs from 'fs';
-
 import { tryResolveModule } from './utils';
+import { cli } from './cli';
 
 const stat = util.promisify(fs.stat);
+
 
 export interface Config {
 	out: string;
@@ -38,24 +38,24 @@ export async function prepareConfig(config: Config): Promise<Config> {
 	};
 }
 
-export function loadConfig(args: Arguments): Partial<Config> | undefined {
-	if (args['c']) {
-		const configFile = tryResolveModule(path.resolve(args['c']));
+export function loadConfig(args: typeof cli): Partial<Config> | undefined {
+	if (args.config) {
+		const configFile = tryResolveModule(path.resolve(args.config));
 
 		if (configFile) {
 			return require(configFile);
 		} else {
-			throw new Error(`Cannot find config file "${args['c']}"`);
+			throw new Error(`Cannot find config file "${args.config}"`);
 		}
 	}
 }
 
-export function configFromArgs(args: Arguments): Partial<Config> {
+export function configFromArgs(args: typeof cli): Partial<Config> {
 	return {
-		out: args['o'],
-		templates: args['t'],
-		proto_paths: typeof args['I'] === 'string' ? [args['I']] : args['I'], // coerce to array
-		files: args._.length > 0 ? args._ : undefined,
+		out: args.out,
+		templates: args.templates,
+		proto_paths: args.proto_path,
+		files: args._,
 	};
 }
 
