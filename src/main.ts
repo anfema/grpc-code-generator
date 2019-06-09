@@ -4,13 +4,11 @@ import * as path from 'path';
 import * as process from 'process';
 import { cli } from './cli';
 import { Context, TemplateFunction, loadProto } from './';
-import { configFromArgs, configFromFile, mergeConfig, prepareConfig, defaultConfig } from './config';
+import { configFromArgs, configFromFile, mergeConfig, defaultConfig } from './config';
 
 (async function() {
 	try {
-		const config = await prepareConfig(
-			mergeConfig(configFromArgs(cli), mergeConfig(configFromFile(cli), defaultConfig)),
-		);
+		const config = mergeConfig(configFromArgs(cli), mergeConfig(configFromFile(cli), defaultConfig));
 
 		const root = await loadProto(config.files, config.proto_paths);
 		const context = new Context(root);
