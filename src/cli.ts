@@ -1,4 +1,9 @@
+#!/usr/bin/env node
+
 import * as yargs from 'yargs';
+import * as process from 'process';
+import { render, writeFiles } from './';
+import { configFromArgs, configFromFile, mergeConfig, defaultConfig } from './config';
 
 export const cli = yargs
 	.usage('grpc-code-generator [options] <path/to/main.proto>')
@@ -27,3 +32,15 @@ export const cli = yargs
 	})
 	.help()
 	.version().argv;
+
+(async function() {
+	try {
+		const config = mergeConfig(configFromArgs(cli), mergeConfig(configFromFile(cli), defaultConfig));
+		await writeFiles(await render(config), config.out);
+
+		process.exit(0);
+	} catch (err) {
+		console.error(err.message);
+		process.exit(1);
+	}
+})();

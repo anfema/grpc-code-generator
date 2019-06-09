@@ -15,13 +15,13 @@
 		"link": "mkdir -p node_modules/@anfema/grpc-code-generator/dist && ln -fs ../../../../dist/templates node_modules/@anfema/grpc-code-generator/dist/templates",
 		"main.build": "npm run link && tsc --project src/",
 		"main.dev": "npm run link && tsc --watch --project src/",
-		"test.gen": "node dist/main.js -o src/__tests__/gen src/__tests__/proto/test.proto",
+		"test.gen": "node dist/cli.js -o src/__tests__/gen src/__tests__/proto/test.proto",
 		"test.build": "tsc --project src/__tests__",
 		"test.dev": "tsc --watch --project src/__tests__",
 		"test.run": "ava"
 	},
 	"bin": {
-		"grpc-code-generator": "dist/main.js"
+		"grpc-code-generator": "dist/cli.js"
 	},
 	"devDependencies": {
 		"@types/node": "^12.0.6",
