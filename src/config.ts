@@ -1,12 +1,14 @@
 import * as path from 'path';
 import { tryResolveModule } from './utils';
 import { cli } from './cli';
+import { IParseOptions } from 'protobufjs';
 
 export interface Config {
 	out: string;
 	templates: string[];
 	proto_paths: string[];
 	files: string[];
+	parse_options: IParseOptions;
 }
 
 export const defaultConfig: Config = {
@@ -17,6 +19,9 @@ export const defaultConfig: Config = {
 	],
 	proto_paths: [process.cwd()],
 	files: [],
+	parse_options: {
+		keepCase: true,
+	},
 };
 
 export function configFromFile(args: typeof cli): Partial<Config> | undefined {
@@ -63,6 +68,7 @@ export function mergeConfig(config: Partial<Config> | undefined, defaultConfig: 
 						? config.proto_paths.concat(defaultConfig.proto_paths)
 						: defaultConfig.proto_paths,
 				files: config.files != undefined ? config.files.concat(defaultConfig.files) : defaultConfig.files,
+				parse_options: config.parse_options || defaultConfig.parse_options,
 		  }
 		: defaultConfig;
 }

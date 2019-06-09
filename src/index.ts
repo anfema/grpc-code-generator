@@ -34,10 +34,7 @@ export async function render(config: Config): Promise<RenderedTemplatesMap> {
 	const root = new Root();
 	root.resolvePath = (origin: string, target: string) => resolvePath(config.proto_paths, origin, target);
 
-	await root.load(config.files, {
-		keepCase: true,
-	});
-
+	await root.load(config.files, config.parse_options);
 	
 	const templateMap = new Map<string, string>();
 	
