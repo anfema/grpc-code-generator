@@ -1,18 +1,21 @@
-import { Context, TemplateFunction } from '../..';
+import { Root } from 'protobufjs';
+import { RenderedTemplatesMap } from '../..';
 import { fileNameForNamespace, hasTypeOrEnum, recursiveNamespacesOf } from '../utils';
 import namespace from './namespace';
 import protobufjs6 from './protobufjs6';
 
 export const name = 'protobufjs6';
 
-const template: TemplateFunction = (context: Context) => {
-	context.addTemplate('protobufjs6.d.ts', protobufjs6(context.root));
+export default function(root: Root): RenderedTemplatesMap {
+	const templates = new Map<string, string>();
 
-	recursiveNamespacesOf(context.root).forEach(ns => {
+	templates.set('protobufjs6.d.ts', protobufjs6(root));
+
+	recursiveNamespacesOf(root).forEach(ns => {
 		if (hasTypeOrEnum(ns)) {
-			context.addTemplate(fileNameForNamespace(ns), namespace(ns, context.root));
+			templates.set(fileNameForNamespace(ns), namespace(ns, root));
 		}
 	});
-};
 
-export default template;
+	return templates;
+};
