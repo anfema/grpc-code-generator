@@ -35,9 +35,9 @@ export async function render(config: Config): Promise<RenderedTemplatesMap> {
 	root.resolvePath = (origin: string, target: string) => resolvePath(config.proto_paths, origin, target);
 
 	await root.load(config.files, config.parse_options);
-	
+
 	const templateMap = new Map<string, string>();
-	
+
 	for (let t of templateFunctions) {
 		t(root).forEach((content, path) => {
 			if (!templateMap.has(path)) {
@@ -87,13 +87,9 @@ function resolvePath(rootPaths: string[], origin: string, target: string): strin
 	} else {
 		const resolvedRoot = rootPaths.find(r => exists(path.join(r, target)));
 
-		if (resolvedRoot) {
-			// resolved via one of rootPaths
-			return path.join(resolvedRoot, target);
-		} else {
-			// resolve relative to origin, even it is out of spec?
-			return null;
-		}
+		return resolvedRoot
+			? path.join(resolvedRoot, target) // resolved via one of rootPaths
+			: null; // resolve relative to origin, even it is out of spec?
 	}
 }
 
@@ -114,7 +110,8 @@ function uniq<T>(array: T[]): T[] {
 }
 
 function directoryHierarchy(pathName: string): string[] {
-	const elements = pathName.split(path.sep).filter(e => e.length > 0);
-
-	return elements.map((baseName, i, elements) => '/' + elements.slice(0, i + 1).join(path.sep));
+	return pathName
+		.split(path.sep)
+		.filter(e => e.length > 0)
+		.map((baseName, i, elements) => path.sep + elements.slice(0, i + 1).join(path.sep));
 }
