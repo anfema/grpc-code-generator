@@ -52,9 +52,9 @@ export function configFromFile(args: typeof cli): Partial<Config> | undefined {
 
 export function configFromArgs(args: typeof cli): Partial<Config> {
 	return {
-		out: args.out,
 		// Relative paths are interpreted from the current work dir
-		templates: args.templates.map(t => (t.startsWith('.') ? path.resolve(t) : t)),
+		out: args.out && path.resolve(args.out),
+		templates: args.templates && args.templates.map(t => (t.startsWith('.') ? path.resolve(t) : t)),
 		proto_paths: args.proto_path.map(p => path.resolve(p)),
 		files: args._.map(f => path.resolve(f)),
 	};
