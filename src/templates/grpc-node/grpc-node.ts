@@ -1,4 +1,4 @@
-import { Namespace, NamespaceBase, Root, Service } from 'protobufjs';
+import { NamespaceBase, Root } from 'protobufjs';
 import { name } from '.';
 import {
 	importFileFor,
@@ -10,39 +10,31 @@ import {
 } from '../utils';
 import { indent, banner } from '../tags';
 
-const serviceImportDeclarations = (root: Root, baseNs: Namespace) =>
-	recursiveServicesOf(root).map(
-		ns => `import * as ${importReferenceFor(ns)} from '${importFileFor(ns, baseNs)}/grpc-node';`,
-	);
-
-function namespaceDeclarations(namespace: NamespaceBase): string {
-	const serviceTypes = servicesOf(namespace).map(ns => serviceDeclaration(ns));
-	const subNamespaces = namespacesOf(namespace)
-		.filter(ns => recursiveServicesOf(ns).length > 0)
-		.map(ns => subNamespaceDeclaration(ns));
+export default (root: Root) => {
+	const imports = recursiveServicesOf(root);
+	const namespaces = namespaceDeclarations(root);
 
 	return indent`
-		${serviceTypes.join('\n')}
-		${subNamespaces.join('\n')}
+		${banner(name)}
+
+		import { GrpcObject } from 'grpc';
+		${imports.map(ns => `import * as ${importReferenceFor(ns)} from '${importFileFor(ns, root)}/grpc-node'`).join('\n')}
+
+		export default interface Grpc extends GrpcObject {
+			${namespaces}
+		}
+	`;
+};
+
+function namespaceDeclarations(namespace: NamespaceBase): string {
+	return indent`
+		${servicesOf(namespace).map(s => indent`
+			${s.name}: ${namespacedReferenceForService(s)}.ClientConstructor;
+		`).join('\n')}
+		${namespacesOf(namespace).filter(ns => recursiveServicesOf(ns).length > 0).map(ns => indent`
+			${ns.name}: {
+				${namespaceDeclarations(ns as NamespaceBase)}
+			}
+		`).join('\n')}
 	`;
 }
-
-const subNamespaceDeclaration = (ns: Namespace) => indent`
-	${ns.name}: {
-		${namespaceDeclarations(ns as NamespaceBase)}
-	}
-`;
-
-const serviceDeclaration = (service: Service) => indent`
-	${service.name}: ${namespacedReferenceForService(service)}.ClientConstructor;
-`;
-
-export default (root: Root) => indent`
-	${banner(name)}
-	import { GrpcObject } from 'grpc';
-	${serviceImportDeclarations(root, root).join('\n')}
-
-	export default interface Grpc extends GrpcObject {
-		${namespaceDeclarations(root)}
-	}
-`;

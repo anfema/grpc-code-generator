@@ -5,6 +5,7 @@ import { indent, banner } from '../tags';
 
 export default (service: Service, root: Root) => indent`
 	${banner(name)}
+
 	import Long = require('long');
 	import {
 		Client as GrpcClient, Metadata, CallOptions, ChannelCredentials,
@@ -15,94 +16,59 @@ export default (service: Service, root: Root) => indent`
 	} from 'grpc';
 	${namespaceImportDeclarations(root, service).join('\n')}
 
-	${serviceServerDeclaration(service)}
+	export interface Service {
+		${service.methodsArray.map(m => serverMethodDeclaration(m)).join('\n')}
+	}
 
-	${serviceClientDeclaration(service)}
+	export interface ClientConstructor {
+		service: ServiceDefinition<Service>;
+
+		new(address: string, credentials: ChannelCredentials, options?: object): Client;
+	}
+
+	export interface Client extends GrpcClient {
+		${service.methodsArray.map(m => clientMethodDeclaration(m)).join('\n')}
+	}
 `;
 
-function serviceServerDeclaration(service: Service): string {
-	const methods = service.methodsArray.map(method => serverMethodDeclaration(method as Method));
-
-	return indent`
-		export interface Service {
-			${methods.join('\n')}
-		}
-	`;
-}
-
-function serviceClientDeclaration(service: Service): string {
-	const methods = service.methodsArray.map(method => clientMethodDeclaration(method as Method));
-
-	return indent`
-		export interface ClientConstructor {
-			service: ServiceDefinition<Service>;
-			new(address: string, credentials: ChannelCredentials, options?: object): Client;
-		}
-
-		export interface Client extends GrpcClient {
-			${methods.join('\n')}
-		}
-	`;
-}
-
 function serverMethodDeclaration(method: Method): string {
-	try {
-		method.resolve();
+	method.resolve();
 
-		if (method.resolved && method.resolvedRequestType && method.resolvedResponseType) {
-			const requestType = namespacedReferenceForType(method.resolvedRequestType);
-			const responseType = namespacedReferenceForType(method.resolvedResponseType);
+	if (method.resolved && method.resolvedRequestType && method.resolvedResponseType) {
+		const reqType = namespacedReferenceForType(method.resolvedRequestType);
+		const resType = namespacedReferenceForType(method.resolvedResponseType);
 
-			if (method.responseStream && method.requestStream) {
-				return `${method.name}(call: ServerDuplexStream<${requestType}, ${responseType}>): void;`;
-			} else if (method.responseStream) {
-				return `${method.name}(call: ServerWriteableStream<${requestType}>): void;`;
-			} else if (method.requestStream) {
-				return `${
-					method.name
-				}(call: ServerReadableStream<${requestType}>, callback: sendUnaryData<${responseType}>): void;`;
-			} else {
-				return `${
-					method.name
-				}(call: ServerUnaryCall<${requestType}>, callback: sendUnaryData<${responseType}>): void;`;
-			}
+		if (method.responseStream && method.requestStream) {
+			return `${method.name}(call: ServerDuplexStream<${reqType}, ${resType}>): void;`;
+		} else if (method.responseStream) {
+			return `${method.name}(call: ServerWriteableStream<${reqType}>): void;`;
+		} else if (method.requestStream) {
+			return `${method.name}(call: ServerReadableStream<${reqType}>, callback: sendUnaryData<${resType}>): void;`;
 		} else {
-			throw undefined;
+			return `${method.name}(call: ServerUnaryCall<${reqType}>, callback: sendUnaryData<${resType}>): void;`;
 		}
-	} catch (err) {
+	} else {
 		throw new Error(`${method.filename}: Cannot resolve type for field '${method.fullName}'`);
 	}
 }
 
 function clientMethodDeclaration(method: Method): string {
-	try {
-		method.resolve();
+	method.resolve();
 
-		if (method.resolved && method.resolvedRequestType && method.resolvedResponseType) {
-			const requestType = namespacedReferenceForType(method.resolvedRequestType);
-			const responseType = namespacedReferenceForType(method.resolvedResponseType);
+	if (method.resolved && method.resolvedRequestType && method.resolvedResponseType) {
+		const reqType = namespacedReferenceForType(method.resolvedRequestType);
+		const resType = namespacedReferenceForType(method.resolvedResponseType);
 
-			if (method.responseStream && method.requestStream) {
-				return `${
-					method.name
-				}(metadata?: Metadata | null, options?: CallOptions | null): ClientDuplexStream<${requestType}, ${responseType}>;`;
-			} else if (method.responseStream) {
-				return `${
-					method.name
-				}(arg: ${requestType}, metadata?: Metadata | null, options?: CallOptions | null): ClientReadableStream<${responseType}>;`;
-			} else if (method.requestStream) {
-				return `${
-					method.name
-				}(metadata: Metadata | null, options: CallOptions | null, callback: requestCallback<${responseType}>): ClientWritableStream<${requestType}>;`;
-			} else {
-				return `${
-					method.name
-				}(arg: ${requestType}, metadata: Metadata | null, options: CallOptions | null, callback: requestCallback<${responseType}>): void;`;
-			}
+		if (method.responseStream && method.requestStream) {
+			return `${method.name}(metadata?: Metadata | null, options?: CallOptions | null): ClientDuplexStream<${reqType}, ${resType}>;`;
+		} else if (method.responseStream) {
+			return `${method.name}(arg: ${reqType}, metadata?: Metadata | null, options?: CallOptions | null): ClientReadableStream<${resType}>;`;
+		} else if (method.requestStream) {
+			return `${method.name}(metadata: Metadata | null, options: CallOptions | null, callback: requestCallback<${resType}>): ClientWritableStream<${reqType}>;`;
 		} else {
-			throw new Error();
+			return `${method.name}(arg: ${reqType}, metadata: Metadata | null, options: CallOptions | null, callback: requestCallback<${resType}>): void;`;
 		}
-	} catch (err) {
+	} else {
 		throw new Error(`${method.filename}: Cannot resolve type for field '${method.fullName}'`);
 	}
 }
