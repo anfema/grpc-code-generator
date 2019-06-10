@@ -17,14 +17,13 @@ export default function(root: Root): RenderedTemplatesMap {
 	});
 
 	return templates;
-};
-
-
+}
 
 function fileNameForService(service: Service): string {
-	const parents = [...parentChainOf(service), service]
-		.slice(1) // omit the root namespace
-		.map(p => p.name);
-
-	return path.join(...parents, 'grpc-node.d.ts');
+	return path.join(
+		...[...parentChainOf(service), service]
+			.slice(1) // omit the root namespace
+			.map(p => p.name),
+		'grpc-node.d.ts',
+	);
 }

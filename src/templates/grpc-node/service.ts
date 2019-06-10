@@ -1,45 +1,48 @@
 import { Method, Root, Service } from 'protobufjs';
 import { name } from '.';
-import { banner, indent, namespacedReferenceForType, namespaceImportDeclarations } from '../utils';
+import { namespacedReferenceForType, namespaceImportDeclarations } from '../utils';
+import { indent, banner } from '../tags';
 
-export default function(service: Service, root: Root): string {
-	return `${banner(name)}
-import Long = require('long');
-import {
-	Client as GrpcClient, Metadata, CallOptions, ChannelCredentials,
-	ServerUnaryCall, ServiceDefinition,
-	ServerReadableStream, ServerWriteableStream, ServerDuplexStream,
-	ClientReadableStream, ClientWritableStream, ClientDuplexStream,
-	sendUnaryData, requestCallback
-} from 'grpc';
-${namespaceImportDeclarations(root, service).join('\n')}
+export default (service: Service, root: Root) => indent`
+	${banner(name)}
+	import Long = require('long');
+	import {
+		Client as GrpcClient, Metadata, CallOptions, ChannelCredentials,
+		ServerUnaryCall, ServiceDefinition,
+		ServerReadableStream, ServerWriteableStream, ServerDuplexStream,
+		ClientReadableStream, ClientWritableStream, ClientDuplexStream,
+		sendUnaryData, requestCallback
+	} from 'grpc';
+	${namespaceImportDeclarations(root, service).join('\n')}
 
+	${serviceServerDeclaration(service)}
 
-${serviceServerDeclaration(service)}
-
-${serviceClientDeclaration(service)}`;
-}
+	${serviceClientDeclaration(service)}
+`;
 
 function serviceServerDeclaration(service: Service): string {
 	const methods = service.methodsArray.map(method => serverMethodDeclaration(method as Method));
 
-	return `export interface Service {
-	${indent(methods.join('\n'), 1)}
-}`;
+	return indent`
+		export interface Service {
+			${methods.join('\n')}
+		}
+	`;
 }
 
 function serviceClientDeclaration(service: Service): string {
 	const methods = service.methodsArray.map(method => clientMethodDeclaration(method as Method));
 
-	return `export interface ClientConstructor {
-	service: ServiceDefinition<Service>;
-	new(address: string, credentials: ChannelCredentials, options?: object): Client;
-}
+	return indent`
+		export interface ClientConstructor {
+			service: ServiceDefinition<Service>;
+			new(address: string, credentials: ChannelCredentials, options?: object): Client;
+		}
 
-export interface Client extends GrpcClient {
-	${indent(methods.join('\n'), 1)}
-}
-`;
+		export interface Client extends GrpcClient {
+			${methods.join('\n')}
+		}
+	`;
 }
 
 function serverMethodDeclaration(method: Method): string {
@@ -67,9 +70,7 @@ function serverMethodDeclaration(method: Method): string {
 			throw undefined;
 		}
 	} catch (err) {
-		throw new Error(`${method.filename}:
-
-Cannot resolve type for field '${method.fullName}'`);
+		throw new Error(`${method.filename}: Cannot resolve type for field '${method.fullName}'`);
 	}
 }
 
@@ -102,8 +103,6 @@ function clientMethodDeclaration(method: Method): string {
 			throw new Error();
 		}
 	} catch (err) {
-		throw new Error(`${method.filename}:
-
-Cannot resolve type for field '${method.fullName}'`);
+		throw new Error(`${method.filename}: Cannot resolve type for field '${method.fullName}'`);
 	}
 }

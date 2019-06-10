@@ -1,28 +1,31 @@
 import { Enum, Field, Namespace, Root, Type } from 'protobufjs';
 import { name } from '.';
-import { banner, enumsOf, indent, namespacedReferenceForType, namespaceImportDeclarations, typesOf } from '../utils';
+import { enumsOf, namespacedReferenceForType, namespaceImportDeclarations, typesOf } from '../utils';
+import { banner, indent } from '../tags';
 
 export default function(namespace: Namespace, root: Root): string {
 	const messageTypes = typesOf(namespace).map(t => typeDeclaration(t));
 	const enums = enumsOf(namespace).map(e => enumDeclaration(e));
 
-	return `${banner(name)}
-import Long = require('long');
+	return indent`
+		${banner(name)}
 
-${namespaceImportDeclarations(root, namespace).join('\n')}
+		import Long = require('long');
+		${namespaceImportDeclarations(root, namespace).join('\n')}
 
-${messageTypes.join('\n')}
-${enums.join('\n')}
-`;
+		${messageTypes.join('\n')}
+		${enums.join('\n')}
+	`;
 }
 
 function typeDeclaration(type: Type): string {
 	const fields = type.fieldsArray.map(field => fieldDeclaration(field));
 
-	return `export interface ${type.name} {
-	${indent(fields.join('\n'), 1)}
-}
-`;
+	return indent`
+		export interface ${type.name} {
+			${fields.join('\n')}
+		}
+	`;
 }
 
 function fieldDeclaration(field: Field): string {
@@ -35,10 +38,11 @@ function fieldDeclaration(field: Field): string {
 function enumDeclaration(enumeration: Enum): string {
 	const values = Object.keys(enumeration.values).map(key => `${key} = ${enumeration.values[key]},`);
 
-	return `export const enum ${enumeration.name} {
-	${indent(values.join('\n'), 1)}
-}
-`;
+	return indent`
+		export const enum ${enumeration.name} {
+			${values.join('\n')}
+		}
+	`;
 }
 
 function typeForField(field: Field): string {
