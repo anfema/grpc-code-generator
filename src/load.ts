@@ -1,5 +1,13 @@
 import * as fs from 'fs';
-import { deserialize, GrpcObject, loadPackageDefinition, MethodDefinition, PackageDefinition, serialize, ServiceDefinition } from 'grpc';
+import {
+	deserialize,
+	GrpcObject,
+	loadPackageDefinition,
+	MethodDefinition,
+	PackageDefinition,
+	serialize,
+	ServiceDefinition,
+} from 'grpc';
 import * as path from 'path';
 import { IConversionOptions, IParseOptions, Method, Namespace, NamespaceBase, Root, Service, Type } from 'protobufjs';
 import { namespacesOf, typesOf } from './templates/utils';
@@ -22,7 +30,7 @@ import { namespacesOf, typesOf } from './templates/utils';
  */
 export function parseProtoFiles(rootPaths: string[], protoPaths: string[], options?: IParseOptions): Promise<Root> {
 	const cwd = process.cwd();
-	const roots = rootPaths.map(p => path.isAbsolute(p) ? p : path.join(cwd, p));
+	const roots = rootPaths.map(p => (path.isAbsolute(p) ? p : path.join(cwd, p)));
 
 	const root = new Root();
 	root.resolvePath = (origin: string, target: string) => resolvePath(roots, origin, target);
@@ -50,7 +58,10 @@ export function createMessageTypes<T>(protobufReflectionRoot: Root): T {
  * @param options Conversion options
  * @returns An object that conforms to the interface `Grpc` of the `grpc-node` template.
  */
-export function createGrpcServices<T extends GrpcObject>(protobufReflectionRoot: Root, options?: IConversionOptions): T {
+export function createGrpcServices<T extends GrpcObject>(
+	protobufReflectionRoot: Root,
+	options?: IConversionOptions,
+): T {
 	protobufReflectionRoot.resolveAll();
 	const packageDefinition = createPackageDefinition(protobufReflectionRoot, options);
 
@@ -65,8 +76,12 @@ function createPackageDefinition(root: Root, options?: IConversionOptions): Pack
 	return def as PackageDefinition;
 }
 
-function createServiceDefinition(service: Service, name: string, options?: IConversionOptions): ServiceDefinition<object> {
-	const def: any  = {};
+function createServiceDefinition(
+	service: Service,
+	name: string,
+	options?: IConversionOptions,
+): ServiceDefinition<object> {
+	const def: any = {};
 	for (const method of service.methodsArray) {
 		def[method.name] = createMethodDefinition(method, name, options);
 	}
@@ -75,23 +90,24 @@ function createServiceDefinition(service: Service, name: string, options?: IConv
 }
 
 function getAllServices(obj: NamespaceBase, parentName: string): Array<[string, Service]> {
-	const objName = parentName === ''
-		? obj.name
-		: parentName + '.' + obj.name;
+	const objName = parentName === '' ? obj.name : parentName + '.' + obj.name;
 
 	if (obj.hasOwnProperty('methods')) {
 		return [[objName, obj as Service]];
-	}
-	else {
-		return obj.nestedArray.map((child) => {
-			return child.hasOwnProperty('nested')
-				? getAllServices(child as NamespaceBase, objName)
-				: [];
-		}).reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
+	} else {
+		return obj.nestedArray
+			.map(child => {
+				return child.hasOwnProperty('nested') ? getAllServices(child as NamespaceBase, objName) : [];
+			})
+			.reduce((accumulator, currentValue) => accumulator.concat(currentValue), []);
 	}
 }
 
-function createMethodDefinition(method: Method, serviceName: string, options?: IConversionOptions): MethodDefinition<object, object> {
+function createMethodDefinition(
+	method: Method,
+	serviceName: string,
+	options?: IConversionOptions,
+): MethodDefinition<object, object> {
 	return {
 		path: '/' + serviceName + '/' + method.name,
 		requestStream: !!method.requestStream,
@@ -122,15 +138,13 @@ function resolvePath(rootPaths: string[], origin: string, target: string): strin
 	if (path.isAbsolute(target)) {
 		// top level file
 		return target;
-	}
-	else {
+	} else {
 		const resolvedRoot = rootPaths.find(r => exists(path.join(r, target)));
 
 		if (resolvedRoot) {
 			// resolved via one of rootPaths
 			return path.join(resolvedRoot, target);
-		}
-		else {
+		} else {
 			// resolve relative to origin, even it is out of spec?
 			throw new Error(`Could not find file "${target}"`);
 		}
@@ -141,9 +155,8 @@ function exists(path: string): boolean {
 	try {
 		fs.accessSync(path);
 		return true;
-	}
-	catch (err) {
-		return false
+	} catch (err) {
+		return false;
 	}
 }
 
@@ -152,15 +165,15 @@ function createMessageTypesRecursive(messageTypes: any, namespace: Namespace): v
 
 	namespacesOf(namespace).forEach(ns => {
 		const namespaceHolder: any = {};
-		const type = types.find(type => type.name === ns.name)
+		const type = types.find(type => type.name === ns.name);
 		if (type) {
-			namespaceHolder[ '_Message' ] = type;
+			namespaceHolder['_Message'] = type;
 		}
 
-		messageTypes[ ns.name ] = namespaceHolder;
+		messageTypes[ns.name] = namespaceHolder;
 
 		if (ns instanceof Type) {
-			namespace
+			namespace;
 		}
 
 		createMessageTypesRecursive(namespaceHolder, ns);
