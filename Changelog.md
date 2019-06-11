@@ -1,6 +1,10 @@
 Changelog
 ===
 
+### 2.0.2 (2019-07-15)
+
+- Update dependencies
+
 ### 2.0.1 (2019-06-06)
 
 - Update dependencies

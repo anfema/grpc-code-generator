@@ -1,6 +1,6 @@
 {
 	"name": "@anfema/grpc-code-generator",
-	"version": "2.0.1",
+	"version": "2.0.2",
 	"description": "A code generator for gRPC",
 	"license": "MIT",
 	"main": "dist/index.js",
@@ -24,13 +24,13 @@
 		"grpc-code-generator": "dist/cli.js"
 	},
 	"devDependencies": {
-		"@types/node": "^12.0.6",
-		"@types/uuid": "^3.4.3",
+		"@types/node": "^12.6.2",
+		"@types/uuid": "^3.4.5",
 		"@types/yargs": "^13.0.0",
-		"ava": "^2.0.0",
+		"ava": "^2.2.0",
 		"del-cli": "^2.0.0",
-		"grpc": "^1.21.1",
-		"typescript": "^3.5.1",
+		"grpc": "^1.22.2",
+		"typescript": "^3.5.3",
 		"uuid": "^3.1.0"
 	},
 	"dependencies": {
