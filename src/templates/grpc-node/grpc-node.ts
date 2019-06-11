@@ -26,14 +26,14 @@ export default (root: Root) => {
 	`;
 };
 
-function namespaceDeclarations(namespace: NamespaceBase): string {
+function namespaceDeclarations(ns: NamespaceBase): string {
+	const subNamespaces = namespacesOf(ns).filter(ns => recursiveServicesOf(ns).length > 0);
+
 	return indent`
-		${servicesOf(namespace).map(s => indent`
-			${s.name}: ${namespacedReferenceForService(s)}.ClientConstructor;
-		`).join('\n')}
-		${namespacesOf(namespace).filter(ns => recursiveServicesOf(ns).length > 0).map(ns => indent`
+		${servicesOf(ns).map(s => `${s.name}: ${namespacedReferenceForService(s)}.ClientConstructor;`).join('\n')}
+		${subNamespaces.map(ns => indent`
 			${ns.name}: {
-				${namespaceDeclarations(ns as NamespaceBase)}
+				${namespaceDeclarations(ns)}
 			}
 		`).join('\n')}
 	`;

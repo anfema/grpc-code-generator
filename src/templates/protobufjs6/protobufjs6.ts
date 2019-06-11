@@ -17,16 +17,12 @@ export default (root: Root) => indent`
 	}
 `;
 
-function namespaceDeclarations(namespace: NamespaceBase): string {
-	const messageDeclaration =
-		namespace instanceof Type ? `_Message: TypedType<${namespacedReferenceForType(namespace)}>;` : '';
-
-	const subNamespaces = namespacesOf(namespace)
-		// .filter(ns => servicesOf(ns).length > 0 || typesOf(ns).length > 0)
+function namespaceDeclarations(ns: NamespaceBase): string {
+	const subNamespaces = namespacesOf(ns)
 		.map(ns => subNamespaceDeclaration(ns));
 
 	return indent`
-		${messageDeclaration}
+		${ns instanceof Type ? `_Message: TypedType<${namespacedReferenceForType(ns)}>;` : ''}
 		${subNamespaces.join('\n')}
 	`;
 }
