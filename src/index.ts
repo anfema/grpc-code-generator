@@ -11,9 +11,12 @@ const writeFile = promisify(fs.writeFile);
 const mkdir = promisify(fs.mkdir);
 const access = promisify(fs.access);
 
-export type TemplateFunction = (root: Root) => Map<string, string>;
 export type RenderedTemplatesMap = Map<string, string>; // file path => content
 
+/** Templates expose this function as default export */
+export type TemplateFunction = (root: Root) => RenderedTemplatesMap;
+
+/** Render a set of templates based on the given configuration */
 export async function render(config: Config): Promise<RenderedTemplatesMap> {
 	const templateFunctions = config.templates.map(t => {
 		const path = tryResolveModule(t);
@@ -51,6 +54,7 @@ export async function render(config: Config): Promise<RenderedTemplatesMap> {
 	return templateMap;
 }
 
+/** Write files from a map of rendered templates */
 export async function writeFiles(templates: RenderedTemplatesMap, outDir: string): Promise<void> {
 	// Compute subdirectories to create
 	const subDirs = uniq([
