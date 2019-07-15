@@ -1,6 +1,10 @@
 Changelog
 ===
 
+### 2.0.3 (2019-07-15)
+
+- Fix output subdir creation
+
 ### 2.0.2 (2019-07-15)
 
 - Update dependencies
