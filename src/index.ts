@@ -66,15 +66,13 @@ export async function writeFiles(templates: RenderedTemplatesMap, outDir: string
 	]).sort();
 
 	// Create subdirectories
-	await Promise.all(
-		subDirs.map(async d => {
-			try {
-				await access(d);
-			} catch {
-				await mkdir(d);
-			}
-		}),
-	);
+	for (let dir of subDirs) {
+		try {
+			await access(dir);
+		} catch {
+			await mkdir(dir);
+		}
+	}
 
 	// Write files
 	await Promise.all(
