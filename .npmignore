@@ -1,6 +1,8 @@
 .*
 *.log
 *.tgz
+*.sh
+*.tsconfig.*
 /src
 /dist/__tests__
 
