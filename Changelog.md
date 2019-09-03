@@ -1,6 +1,10 @@
 Changelog
 ===
 
+### 2.0.5 (2019-09-03)
+
+- Fix console output
+
 ### 2.0.4 (2019-09-03)
 
 - Update dependencies

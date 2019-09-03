@@ -1,6 +1,6 @@
 {
 	"name": "@anfema/grpc-code-generator",
-	"version": "2.0.4",
+	"version": "2.0.5",
 	"description": "A code generator for gRPC",
 	"license": "MIT",
 	"main": "dist/index.js",
@@ -18,7 +18,8 @@
 		"test.gen": "node dist/cli.js -o src/__tests__/gen src/__tests__/proto/test.proto",
 		"test.build": "tsc --project src/__tests__",
 		"test.dev": "tsc --watch --project src/__tests__",
-		"test.run": "ava"
+		"test.run": "ava",
+		"prepublishOnly": "npm run test"
 	},
 	"bin": {
 		"grpc-code-generator": "dist/cli.js"
