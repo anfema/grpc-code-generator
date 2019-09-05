@@ -6,11 +6,8 @@ import { banner, indent } from '../tags';
 export default (root: Root) => indent`
 	${banner(name)}
 
-	import { Message, Type, Constructor, Writer, Reader, IConversionOptions } from 'protobufjs';
+	import { Type } from './protobufjs6-type';
 	${namespaceImportDeclarations(root, root).join('\n')}
-
-	/** Extend the protobufjs base type 'Type' to include a generic type parameter 'T' to help type inference. */
-	export interface TypedType<T extends object> extends Type {}
 
 	export default interface ProtobufJs6 {
 		${namespaceDeclarations(root)}
@@ -22,7 +19,7 @@ function namespaceDeclarations(ns: NamespaceBase): string {
 		.map(ns => subNamespaceDeclaration(ns));
 
 	return indent`
-		${ns instanceof Type ? `_Message: TypedType<${namespacedReferenceForType(ns)}>;` : ''}
+		${ns instanceof Type ? `_Message: Type<${namespacedReferenceForType(ns)}>;` : ''}
 		${subNamespaces.join('\n')}
 	`;
 }
