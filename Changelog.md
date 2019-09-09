@@ -1,6 +1,13 @@
 Changelog
 ===
 
+### 3.0.0 (2019-09-09)
+
+- Show errors with stack traces
+- Remove `TypedType<T>` from _protobufjs6_ template and use a complete type `Type<T>` (defined in 
+  its own file `protobuf6-type.d.ts`). This is essentially a redefinition of protobufjs' `Type`,
+  with a type parameter and small corrections.
+
 ### 2.0.5 (2019-09-03)
 
 - Fix console output
