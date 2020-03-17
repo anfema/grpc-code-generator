@@ -1,6 +1,6 @@
 {
 	"name": "@anfema/grpc-code-generator",
-	"version": "3.0.0",
+	"version": "3.0.1",
 	"description": "A code generator for gRPC",
 	"license": "MIT",
 	"main": "dist/index.js",

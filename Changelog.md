@@ -1,6 +1,10 @@
 Changelog
 ===
 
+### 3.0.1 (2020-03-17)
+
+- Upgrade dependencies
+
 ### 3.0.0 (2019-09-09)
 
 - Show errors with stack traces
